@@ -3224,9 +3224,10 @@
 
         recognition = new SpeechRecognition();
         recognition.lang = 'vi-VN';
-        // continuous = false + interimResults = true: tránh buffer giọng nói bị nghẽn trên iOS Safari & Chrome Android.
-        // Vòng lặp thu âm liên tục được duy trì thủ công trong recognition.onend.
-        recognition.continuous = false;
+        // continuous = true: stream kết quả liên tục, không phải chờ hết câu mới trả final
+        // => phản hồi gần như đồng bộ với chữ đang đọc trên màn hình.
+        // interimResults = true: cập nhật từng từ ngay khi người chơi đang nói.
+        recognition.continuous = true;
         recognition.interimResults = true;
         recognition.maxAlternatives = 3;
 
@@ -3284,8 +3285,11 @@
 
               spokenBuffer = resolved ? '' : primaryBuffer;
             } else if (interim) {
-              // Interim chỉ được xác nhận khi đã chứa TRỌN câu mục tiêu
-              checkBranchingSpeechMatch(interim, false);
+              // Đánh giá ngay trên interim (cộng với final trước đó của cùng câu)
+              // => vừa đọc xong từ cuối là hệ thống xác nhận ngay, không chờ final.
+              const liveText = `${spokenBuffer} ${interim}`.trim().slice(-240);
+              const resolvedLive = checkBranchingSpeechMatch(liveText, true);
+              if (resolvedLive) spokenBuffer = '';
             }
           } catch (err) {
             console.warn('Lỗi phân tích giọng nói:', err);
@@ -3308,7 +3312,7 @@
             // Bỏ qua 'no-speech' và tự kết nối lại Mic khi đang chơi
             if (isGameRunning && isMicEnabled && event.error !== 'aborted') {
               if (micLedEl) micLedEl.className = 'mic-led listening';
-              scheduleMicRestart(300);
+              scheduleMicRestart(150);
             }
           } catch (err) {}
         };
@@ -3321,7 +3325,7 @@
               try {
                 recognition.start();
               } catch (restartErr) {
-                scheduleMicRestart(400);
+                scheduleMicRestart(150);
               }
             } else {
               if (micLedEl) micLedEl.className = 'mic-led';
