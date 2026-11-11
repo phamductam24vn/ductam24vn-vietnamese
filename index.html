@@ -2034,7 +2034,7 @@
     }
 
     /* ==========================================================================
-       D. TEXT NORMALIZATION & 70% KEYWORD MATCHER
+       D. TEXT NORMALIZATION & FULL-SENTENCE KEYWORD MATCHER
        ========================================================================== */
     function normalizeVietnamese(text) {
       if (!text) return '';
@@ -2081,43 +2081,76 @@
       return 1 - (levenshteinDistance(a, b) / maxLen);
     }
 
-    // So khớp linh hoạt: chuẩn hóa .toLowerCase().trim(), .includes() + Fuzzy 60% từ khóa
+    // So khớp theo từng token: ưu tiên khớp chính xác, chỉ chấp nhận fuzzy khi rất giống
+    function matchTokenScore(spokenToken, targetToken) {
+      if (!spokenToken || !targetToken) return 0;
+      if (spokenToken === targetToken) return 1;
+
+      const unSpoken = removeTones(spokenToken);
+      const unTarget = removeTones(targetToken);
+
+      // Cùng chữ cái, có thể lệch dấu thanh
+      if (unSpoken === unTarget) return 0.97;
+
+      // Fuzzy chỉ áp dụng cho từ đủ dài, tránh khớp nhầm các từ ngắn
+      const minLen = Math.min(unSpoken.length, unTarget.length);
+      if (minLen < 3) return 0;
+      const sim = Math.max(
+        wordSimilarity(unSpoken, unTarget),
+        wordSimilarity(spokenToken, targetToken)
+      );
+      return sim >= 0.85 ? sim : 0;
+    }
+
+    // Trả về tỷ lệ token mục tiêu được đọc đúng (khớp 1-1, không dùng includes mảnh)
     function evaluateSentenceMatch(spokenText, targetSentence) {
       if (!spokenText || !targetSentence) return 0;
-      const normSpoken = normalizeVietnamese(spokenText);
-      const normTarget = normalizeVietnamese(targetSentence);
 
-      // Direct exact match
-      if (normSpoken.includes(normTarget)) return 1.0;
+      const targetTokens = normalizeVietnamese(targetSentence).split(' ').filter(w => w.length > 0);
+      const spokenTokens = normalizeVietnamese(spokenText).split(' ').filter(w => w.length > 0);
+      if (!targetTokens.length || !spokenTokens.length) return 0;
+
+      const normSpoken = spokenTokens.join(' ');
+      const normTarget = targetTokens.join(' ');
+
+      // Đọc trọn câu (có thể kèm từ đệm phía trước/sau)
+      if (normSpoken === normTarget || normSpoken.includes(normTarget)) return 1;
 
       const unSpoken = removeTones(normSpoken);
       const unTarget = removeTones(normTarget);
-      if (unSpoken.includes(unTarget)) return 0.95;
+      if (unSpoken === unTarget || unSpoken.includes(unTarget)) return 0.98;
 
-      const targetWords = normTarget.split(' ').filter(w => w.length > 0);
-      if (targetWords.length === 0) return 0;
+      // Ghép 1-1 từng token mục tiêu với token đã đọc tốt nhất (greedy)
+      const used = new Array(spokenTokens.length).fill(false);
+      const matchedFlags = new Array(targetTokens.length).fill(false);
+      let matched = 0;
 
-      const spokenWords = normSpoken.split(' ').filter(w => w.length > 0);
-      const spokenWordSet = new Set(spokenWords);
-      const unSpokenWords = unSpoken.split(' ').filter(w => w.length > 0);
-      const unSpokenWordSet = new Set(unSpokenWords);
+      targetTokens.forEach((tw, ti) => {
+        let bestScore = 0;
+        let bestIndex = -1;
 
-      let matchCount = 0;
-      targetWords.forEach(w => {
-        const unW = removeTones(w);
-        // 1. Khớp tuyệt đối hoặc không dấu
-        if (spokenWordSet.has(w) || unSpokenWordSet.has(unW) || normSpoken.includes(w)) {
-          matchCount++;
-          return;
+        spokenTokens.forEach((sw, si) => {
+          if (used[si]) return;
+          const s = matchTokenScore(sw, tw);
+          if (s > bestScore) {
+            bestScore = s;
+            bestIndex = si;
+          }
+        });
+
+        if (bestScore >= 0.85 && bestIndex >= 0) {
+          used[bestIndex] = true;
+          matchedFlags[ti] = true;
+          matched++;
         }
-        // 2. Khớp mờ: chấp nhận từ bị nhận diện lệch (>= 75% ký tự giống)
-        const fuzzyHit = spokenWords.some(sw =>
-          wordSimilarity(sw, w) >= 0.75 || wordSimilarity(removeTones(sw), unW) >= 0.75
-        );
-        if (fuzzyHit) matchCount++;
       });
 
-      return matchCount / targetWords.length;
+      // Bắt buộc phải đọc tới từ cuối cùng của câu, tránh xác nhận khi bỏ dở đuôi câu
+      if (!matchedFlags[matchedFlags.length - 1]) {
+        return Math.min(0.84, matched / targetTokens.length);
+      }
+
+      return matched / targetTokens.length;
     }
 
     /* ==========================================================================
@@ -2208,6 +2241,8 @@
     let mixWordDeck = [];
     let mixPhraseDeck = [];
     let currentPair = null;
+    // Gom các kết quả nhận diện FINAL của cùng một vật cản để tránh xác nhận khi đọc chưa hết câu
+    let spokenBuffer = '';
 
     // Ground Pebbles & Cracks
     const groundPebbles = [];
@@ -3001,6 +3036,7 @@
 
     function spawnNextObstacle() {
       gapTimer = 0;
+      spokenBuffer = '';
       currentPair = getNextPair();
       currentObstacle = createObstacle(currentPair);
       lastTickSecond = -1;
@@ -3110,6 +3146,7 @@
       // Rào cản gốc lập tức biến mất để không tính va chạm thua game
       currentObstacle = null;
       gapTimer = MIN_OBSTACLE_GAP;
+      spokenBuffer = '';
 
       // Duy trì nhịp phản xạ tối đa 2.0s (rút ngắn nhẹ tối thiểu 1.4s khi lên level cao)
       currentApproachTime = Math.max(1.4, currentApproachTime - 0.02);
@@ -3125,6 +3162,7 @@
 
       gameState = 'GAMEOVER';
       isGameRunning = false;
+      spokenBuffer = '';
       dino.isDead = true;
       screenShake = 1.0;
       comboCount = 0;
@@ -3206,18 +3244,48 @@
           try {
             let interim = '';
             let final = '';
+            const altFinals = [];
 
             for (let i = event.resultIndex; i < event.results.length; ++i) {
-              const trans = event.results[i][0].transcript;
-              if (event.results[i].isFinal) final += trans;
-              else interim += trans;
+              const result = event.results[i];
+              const trans = result[0].transcript;
+              if (result.isFinal) {
+                final += trans;
+                // Thu thập các phương án nhận diện khác để giảm trường hợp đọc đúng mà bị báo sai
+                for (let a = 1; a < result.length; a++) {
+                  if (result[a] && result[a].transcript) altFinals.push(result[a].transcript);
+                }
+              } else {
+                interim += trans;
+              }
             }
 
             const spoken = (final || interim).trim();
-            if (spoken) {
-              if (micLedEl) micLedEl.className = 'mic-led hearing';
-              if (liveTranscriptTextEl) liveTranscriptTextEl.textContent = `"${spoken}"`;
-              checkBranchingSpeechMatch(spoken);
+            if (!spoken) return;
+
+            if (micLedEl) micLedEl.className = 'mic-led hearing';
+            if (liveTranscriptTextEl) liveTranscriptTextEl.textContent = `"${spoken}"`;
+
+            if (final) {
+              // Chỉ chấm điểm trên kết quả FINAL, gom nhiều đoạn của cùng câu
+              const primaryBuffer = `${spokenBuffer} ${final}`.trim().slice(-240);
+              const resolved = checkBranchingSpeechMatch(primaryBuffer, true);
+
+              // Nếu phương án chính chưa khớp, thử các alternative cùng utterance
+              if (!resolved && isGameRunning && currentObstacle) {
+                for (let k = 0; k < altFinals.length && k < 4; k++) {
+                  const altBuffer = `${spokenBuffer} ${altFinals[k]}`.trim().slice(-240);
+                  if (matchesRequiredAction(altBuffer, true)) {
+                    checkBranchingSpeechMatch(altBuffer, true);
+                    break;
+                  }
+                }
+              }
+
+              spokenBuffer = resolved ? '' : primaryBuffer;
+            } else if (interim) {
+              // Interim chỉ được xác nhận khi đã chứa TRỌN câu mục tiêu
+              checkBranchingSpeechMatch(interim, false);
             }
           } catch (err) {
             console.warn('Lỗi phân tích giọng nói:', err);
@@ -3290,27 +3358,45 @@
       }
     }
 
-    // So khớp nhận diện giọng nói phân nhánh (Nhảy vs Cúi)
-    function checkBranchingSpeechMatch(spokenText) {
-      if (gameState !== 'PLAYING' || !currentObstacle || currentObstacle.cleared) return;
-
+    // Tính điểm khớp cho cả 2 nhánh NHẢY / CÚI của vật cản hiện tại
+    function computeSpeechScores(spokenText, allowFuzzy) {
       const isWord = currentPair && currentPair.kind
         ? currentPair.kind === 'WORD'
         : true;
       const jumpScore = evaluateSentenceMatch(spokenText, currentPair.jump);
       const duckScore = evaluateSentenceMatch(spokenText, currentPair.duck);
 
-      // Ngưỡng đạt từ khóa: 60% cho cả Từ đơn và Câu dài (Fuzzy matching cho phép nói lướt)
-      const THRESHOLD = 0.60;
-      const JUMP_MATCH = jumpScore >= THRESHOLD;
-      const DUCK_MATCH = duckScore >= THRESHOLD;
+      // Từ đơn: phải đọc đủ tất cả từ khóa. Câu dài: phải đọc đủ >= 90% số từ (gồm cả từ cuối).
+      // Kết quả interim bắt buộc khớp trọn câu để không xác nhận khi người chơi chưa đọc hết.
+      const threshold = isWord ? 0.95 : (allowFuzzy ? 0.9 : 0.95);
+      return { jumpScore, duckScore, threshold };
+    }
 
-      if (!JUMP_MATCH && !DUCK_MATCH) return;
+    // Chỉ kiểm tra nhánh BẮT BUỘC, không gây va chạm (dùng để thử các alternative)
+    function matchesRequiredAction(spokenText, allowFuzzy = true) {
+      if (gameState !== 'PLAYING' || !currentObstacle || currentObstacle.cleared || !currentPair) return false;
+      const { jumpScore, duckScore, threshold } = computeSpeechScores(spokenText, allowFuzzy);
+      return currentObstacle.type === 'GROUND'
+        ? jumpScore >= threshold
+        : duckScore >= threshold;
+    }
+
+    // So khớp nhận diện giọng nói phân nhánh (Nhảy vs Cúi)
+    // allowFuzzy = false: chỉ chấp nhận khi đã đọc trọn câu (dùng cho kết quả interim)
+    function checkBranchingSpeechMatch(spokenText, allowFuzzy = true) {
+      if (gameState !== 'PLAYING' || !currentObstacle || currentObstacle.cleared || !currentPair) return false;
+
+      const { jumpScore, duckScore, threshold } = computeSpeechScores(spokenText, allowFuzzy);
+      const JUMP_MATCH = jumpScore >= threshold;
+      const DUCK_MATCH = duckScore >= threshold;
+
+      if (!JUMP_MATCH && !DUCK_MATCH) return false;
 
       if (currentObstacle.type === 'GROUND') {
         // Gặp xương rồng: Bắt buộc đọc câu NHẢY
         if (JUMP_MATCH) {
           onActionSuccess('NHẢY', 'voice');
+          return true;
         } else if (DUCK_MATCH) {
           // Đọc nhầm câu CÚI khi gặp xương rồng dưới đất
           handleCollision("ĐỌC NHẦM CÂU CÚI khi gặp xương rồng dưới đất!");
@@ -3319,11 +3405,13 @@
         // Gặp dây điện trên cao: Bắt buộc đọc câu CÚI
         if (DUCK_MATCH) {
           onActionSuccess('CÚI', 'voice');
+          return true;
         } else if (JUMP_MATCH) {
           // Đọc nhầm câu NHẢY khi gặp dây điện trên đầu
           handleCollision("ĐỌC NHẦM CÂU NHẢY đụng trúng dây điện trên đầu!");
         }
       }
+      return false;
     }
 
     /* ==========================================================================
@@ -3365,6 +3453,7 @@
       cameraX = 0;
       currentObstacle = null;
       gapTimer = 0;
+      spokenBuffer = '';
 
       // Reset hiệu ứng slow-motion, hạt vỡ vụn và vệt sáng
       timeScale = 1.0;
