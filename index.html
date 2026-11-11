@@ -853,6 +853,129 @@
     }
 
     /* ==========================================================================
+       5b. RULES MODAL (QUY TẮC BẬT MIC VƯỢT RÀO)
+       ========================================================================== */
+    #rulesModal .modal-card {
+      gap: 12px;
+    }
+
+    .rules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #1a1b26;
+      border: 1.5px solid #374151;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .rule-item.jump {
+      border-color: rgba(255, 152, 0, 0.65);
+      background: linear-gradient(135deg, #2a1705 0%, #1a1220 100%);
+    }
+
+    .rule-item.duck {
+      border-color: rgba(179, 136, 255, 0.65);
+      background: linear-gradient(135deg, #200f35 0%, #121526 100%);
+    }
+
+    .rule-icon {
+      font-size: 24px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .rule-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .rule-body b {
+      font-size: 14.5px;
+      font-weight: 800;
+      line-height: 1.3;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+
+    .rule-item.jump .rule-body b { color: #ffb74d; }
+    .rule-item.duck .rule-body b { color: #b388ff; }
+
+    .rule-body span {
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.5;
+      color: #d1d5db;
+    }
+
+    .rule-note {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #1e2a1f;
+      border: 1.5px solid rgba(0, 230, 118, 0.45);
+      border-radius: 10px;
+      padding: 11px 13px;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #a7f3d0;
+    }
+
+    .rule-note .rule-icon {
+      font-size: 20px;
+      margin-top: 0;
+    }
+
+    .rules-enter-btn {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      background: #10b981;
+      border: 1.5px solid #059669;
+      color: #ffffff;
+      font-family: var(--system-font);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+      padding: 15px 16px;
+      min-height: 56px;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      touch-action: manipulation !important;
+      text-transform: uppercase;
+      text-align: center;
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .rules-enter-btn:hover,
+    .rules-enter-btn:focus-visible {
+      background: #059669;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.55);
+    }
+
+    .rules-enter-btn:active {
+      transform: translateY(1.5px);
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+    }
+
+    /* ==========================================================================
        UX/UI PROMPT #351 · Velocity-leaning scroll list (scoped to .u351)
        MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#351
        Token mapping: project is a single dark theme (global CSS variables).
@@ -1207,6 +1330,41 @@
       </div>
     </div>
 
+    <!-- Rules Modal: Quy tắc bật Mic trước khi vào game -->
+    <div id="rulesModal" class="modal-overlay">
+      <div class="modal-card">
+        <h2 class="modal-title">🎙️ QUY TẮC BẬT MIC VƯỢT RÀO</h2>
+        <p class="modal-subtitle">Trò chơi chỉ phản hồi bằng giọng nói. Đọc đúng từ khóa để nhân vật né chướng ngại vật!</p>
+
+        <div class="rules-list">
+          <div class="rule-item jump">
+            <div class="rule-icon">🦘</div>
+            <div class="rule-body">
+              <b>Lệnh NHẢY</b>
+              <span>Đọc từ khóa hiển thị <strong style="color:#ffb74d;">phía trên</strong> để nhảy vọt qua rào thấp (xương rồng dưới mặt đất).</span>
+            </div>
+          </div>
+
+          <div class="rule-item duck">
+            <div class="rule-icon">🙇</div>
+            <div class="rule-body">
+              <b>Lệnh CÚI</b>
+              <span>Đọc từ khóa hiển thị <strong style="color:#b388ff;">phía dưới</strong> để cúi né vật cản trên cao (dây điện trên đầu).</span>
+            </div>
+          </div>
+
+          <div class="rule-note">
+            <div class="rule-icon">📢</div>
+            <span>Hãy nói <strong>TO, RÕ RÀNG</strong> vào micro và giữ điện thoại ở khoảng cách hợp lý để máy nhận diện chính xác nhất.</span>
+          </div>
+        </div>
+
+        <button id="rulesEnterBtn" type="button" onclick="window.gameBeginDirect()" class="rules-enter-btn">
+          🎮 VÀO CHƠI LUÔN
+        </button>
+      </div>
+    </div>
+
     <!-- Game Over Modal -->
     <div id="gameOverModal" class="modal-overlay">
       <div class="modal-card">
@@ -1318,6 +1476,16 @@
     try {
       const rm = document.getElementById('regionModal');
       if (rm) { rm.classList.remove('active'); rm.style.display = 'none'; }
+      const rules = document.getElementById('rulesModal');
+      if (rules) { rules.style.display = 'flex'; rules.classList.add('active'); }
+    } catch (e) { console.error(e); }
+  };
+
+  window.gameBeginDirect = function() {
+    try {
+      const rules = document.getElementById('rulesModal');
+      if (rules) { rules.classList.remove('active'); rules.style.display = 'none'; }
+      window._pendingStartFromRules = true;
       if (window._internalStartGame) window._internalStartGame();
     } catch (e) { console.error(e); }
   };
@@ -1326,7 +1494,7 @@
     try {
       const gom = document.getElementById('gameOverModal');
       if (gom) { gom.classList.remove('active'); gom.style.display = 'none'; }
-      window.gameStartDirect();
+      if (window._internalStartGame) window._internalStartGame();
     } catch (e) {}
   };
 
@@ -1886,7 +2054,34 @@
         .replace(/Đ/g, 'D');
     }
 
-    // So khớp linh hoạt tối thiểu 70% từ khóa
+    // Khoảng cách Levenshtein dùng cho so khớp mờ (Fuzzy matching) từng từ khóa
+    function levenshteinDistance(a, b) {
+      if (a === b) return 0;
+      if (!a || !b) return (a || b).length;
+      const prev = new Array(b.length + 1);
+      for (let j = 0; j <= b.length; j++) prev[j] = j;
+      for (let i = 1; i <= a.length; i++) {
+        let prevDiag = prev[0];
+        prev[0] = i;
+        for (let j = 1; j <= b.length; j++) {
+          const temp = prev[j];
+          const cost = a.charCodeAt(i - 1) === b.charCodeAt(j - 1) ? 0 : 1;
+          prev[j] = Math.min(prev[j] + 1, prev[j - 1] + 1, prevDiag + cost);
+          prevDiag = temp;
+        }
+      }
+      return prev[b.length];
+    }
+
+    function wordSimilarity(a, b) {
+      if (!a || !b) return 0;
+      if (a === b) return 1;
+      const maxLen = Math.max(a.length, b.length);
+      if (maxLen === 0) return 1;
+      return 1 - (levenshteinDistance(a, b) / maxLen);
+    }
+
+    // So khớp linh hoạt: chuẩn hóa .toLowerCase().trim(), .includes() + Fuzzy 60% từ khóa
     function evaluateSentenceMatch(spokenText, targetSentence) {
       if (!spokenText || !targetSentence) return 0;
       const normSpoken = normalizeVietnamese(spokenText);
@@ -1902,15 +2097,24 @@
       const targetWords = normTarget.split(' ').filter(w => w.length > 0);
       if (targetWords.length === 0) return 0;
 
-      const spokenWords = new Set(normSpoken.split(' ').filter(w => w.length > 0));
-      const unSpokenWords = new Set(unSpoken.split(' ').filter(w => w.length > 0));
+      const spokenWords = normSpoken.split(' ').filter(w => w.length > 0);
+      const spokenWordSet = new Set(spokenWords);
+      const unSpokenWords = unSpoken.split(' ').filter(w => w.length > 0);
+      const unSpokenWordSet = new Set(unSpokenWords);
 
       let matchCount = 0;
       targetWords.forEach(w => {
         const unW = removeTones(w);
-        if (spokenWords.has(w) || unSpokenWords.has(unW) || normSpoken.includes(w)) {
+        // 1. Khớp tuyệt đối hoặc không dấu
+        if (spokenWordSet.has(w) || unSpokenWordSet.has(unW) || normSpoken.includes(w)) {
           matchCount++;
+          return;
         }
+        // 2. Khớp mờ: chấp nhận từ bị nhận diện lệch (>= 75% ký tự giống)
+        const fuzzyHit = spokenWords.some(sw =>
+          wordSimilarity(sw, w) >= 0.75 || wordSimilarity(removeTones(sw), unW) >= 0.75
+        );
+        if (fuzzyHit) matchCount++;
       });
 
       return matchCount / targetWords.length;
@@ -1982,6 +2186,7 @@
     // State Variables
     let selectedRegionKey = 'bac';
     let gameState = 'MENU'; // 'MENU', 'PLAYING', 'GAMEOVER'
+    let isGameRunning = false; // Cờ vòng lặp thu âm: true khi đang chơi
     let score = 0;
     let hiScore = 0;
     let wordsClearedCount = 0;
@@ -1990,6 +2195,15 @@
     let currentApproachTime = 2.0; // Tối đa 2.0 giây mỗi câu
     let cameraX = 0;
     let screenShake = 0;
+
+    // --- Hiệu ứng Slow-motion (Hit-Stop) khi đọc đúng CÂU DÀI ---
+    let timeScale = 1.0;
+    let slowMoActive = false;
+    let slowMoElapsedMs = 0;
+    const SLOWMO_MS = 500;          // Tổng thời gian hiệu ứng
+    const SLOWMO_HOLD_MS = 100;     // Giữ khựng 100ms đầu
+    const SLOWMO_MIN_SCALE = 0.15;  // Tốc độ thấp nhất
+    let hitStopShakeFrames = 0;     // Số frame rung nhẹ khi kích hoạt
 
     let mixWordDeck = [];
     let mixPhraseDeck = [];
@@ -2206,23 +2420,46 @@
     /* ==========================================================================
        G. OBSTACLE ENTITY (LOẠI 1: XƯƠNG RỒNG DƯỚI ĐẤT vs LOẠI 2: DÂY ĐIỆN TRÊN CAO)
        ========================================================================== */
-    const SPAWN_DISTANCE = 520; // 584px
+    // Tốc độ cuộn tính theo px/frame (quy đổi 60fps) — trần 3.8 px/frame
+    const BASE_GAME_SPEED_FPS = 2.8;
+    const MAX_GAME_SPEED_FPS = 3.8;
+    const SPEED_RAMP_PER_SCORE = 0.0003;
+    const MIN_OBSTACLE_GAP = 2.5; // Khoảng đệm tối thiểu giữa 2 rào (giây)
+
     let currentObstacle = null;
+    let gapTimer = 0;
+
+    function getGameSpeedFps() {
+      return Math.min(MAX_GAME_SPEED_FPS, BASE_GAME_SPEED_FPS + score * SPEED_RAMP_PER_SCORE);
+    }
+
+    function getGameSpeedPxPerSec() {
+      return getGameSpeedFps() * 60;
+    }
+
+    // Khoảng cách spawn theo độ dài câu: câu dài nới xa hơn để kịp lấy hơi
+    function getSpawnDistance(sentence) {
+      const wordCount = (sentence || '').trim().split(/\s+/).filter(w => w.length > 0).length;
+      return wordCount > 3 ? (VIRTUAL_WIDTH + 160) : (VIRTUAL_WIDTH + 40);
+    }
 
     function createObstacle(pairObj) {
       // 50% chance Ground Cactus (NHẢY), 50% chance Overhead Wires (CÚI)
       const type = Math.random() > 0.5 ? 'GROUND' : 'OVERHEAD';
       const targetSentence = type === 'GROUND' ? pairObj.jump : pairObj.duck;
-      const targetDuration = calculateSentenceTime(targetSentence, pairObj.kind);
+      const spawnDistance = getSpawnDistance(targetSentence);
+      const speedPxPerSec = getGameSpeedPxPerSec();
+      const targetDuration = spawnDistance / speedPxPerSec;
 
       return {
         type: type, // 'GROUND' (cần Nhảy) hoặc 'OVERHEAD' (cần Cúi)
-        x: DINO_X + SPAWN_DISTANCE,
+        x: DINO_X + spawnDistance,
         y: type === 'GROUND' ? GROUND_Y - 60 + 2 : GROUND_Y - 88,
         w: type === 'GROUND' ? 40 : 54,
         h: type === 'GROUND' ? 60 : 44,
         pair: pairObj,
         targetSentence: targetSentence,
+        spawnDistance: spawnDistance,
         totalTime: targetDuration,
         timeLeft: targetDuration,
         cleared: false,
@@ -2323,6 +2560,178 @@
       }
     }
 
+    /* ==========================================================================
+       H2. PIXEL EXPLOSION (PARTICLE PIXEL BURST KHI PHÁ HỦY CHƯỚNG NGẠI VẬT)
+       ========================================================================== */
+    const PIXEL_BURST_COLORS = ['#ff8c42', '#10b981', '#fcd34d', '#ffffff'];
+    const pixelParticles = [];
+    const safeGlows = [];
+    const PIXEL_GRAVITY = 900; // px/s^2
+
+    function explodeObstacle(x, y, width, height) {
+      const count = 30 + Math.floor(Math.random() * 11); // 30 - 40 hạt
+
+      for (let i = 0; i < count; i++) {
+        const size = 3 + Math.floor(Math.random() * 3); // 3x3 - 5x5 px
+        pixelParticles.push({
+          x: x + Math.random() * Math.max(1, width),
+          y: y + Math.random() * Math.max(1, height),
+          vx: (Math.random() - 0.5) * 320,          // Bay đa hướng
+          vy: -(80 + Math.random() * 260),          // Nảy mạnh lên trời
+          size: size,
+          color: PIXEL_BURST_COLORS[Math.floor(Math.random() * PIXEL_BURST_COLORS.length)],
+          life: 0.75 + Math.random() * 0.55,
+          maxLife: 1.3
+        });
+      }
+
+      // Vệt xanh lá mờ dần báo hiệu rào đã bị phá an toàn
+      safeGlows.push({ x: x, y: y, w: width, h: height, life: 0.45, maxLife: 0.45 });
+    }
+
+    function updatePixelParticles(scaledDt) {
+      for (let i = pixelParticles.length - 1; i >= 0; i--) {
+        const p = pixelParticles[i];
+        p.life -= scaledDt;
+        p.vy += PIXEL_GRAVITY * scaledDt;
+        p.x += p.vx * scaledDt;
+        p.y += p.vy * scaledDt;
+
+        // Cơ chế nảy nhẹ khi chạm sàn
+        if (p.y >= GROUND_Y) {
+          p.y = GROUND_Y;
+          p.vy = -Math.abs(p.vy) * 0.35;
+          p.vx *= 0.75;
+        }
+
+        if (p.life <= 0 || p.y > VIRTUAL_HEIGHT + 20) {
+          pixelParticles.splice(i, 1); // Dọn ngay khi tan biến để tránh tràn RAM
+        }
+      }
+
+      for (let i = safeGlows.length - 1; i >= 0; i--) {
+        safeGlows[i].life -= scaledDt;
+        if (safeGlows[i].life <= 0) safeGlows.splice(i, 1);
+      }
+    }
+
+    function drawPixelParticles(ctx) {
+      safeGlows.forEach(g => {
+        const alpha = Math.max(0, g.life / g.maxLife) * 0.45;
+        ctx.fillStyle = `rgba(16, 185, 129, ${alpha})`;
+        ctx.fillRect(Math.round(g.x), Math.round(g.y), g.w, g.h);
+      });
+
+      pixelParticles.forEach(p => {
+        const alpha = Math.max(0, p.life / p.maxLife);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    /* ==========================================================================
+       H3. GHOST TRAIL / AFTERIMAGE PHÁT QUANG SAU LƯNG KHỦNG LONG
+       ========================================================================== */
+    const GHOST_COLORS = ['#74c0fc', '#b197fc', '#63e6be'];
+    const GHOST_MAX = 6;
+    const dinoGhostTrails = [];
+    let ghostFrameCounter = 0;
+
+    function updateGhostTrails(dt) {
+      ghostFrameCounter++;
+
+      const speedFps = getGameSpeedFps();
+      const ghostActive = speedFps >= 3.2 || !dino.isGrounded || dino.isDucking || slowMoActive;
+
+      if (ghostActive && ghostFrameCounter % 3 === 0 && dinoGhostTrails.length < GHOST_MAX) {
+        dinoGhostTrails.push({
+          x: dino.x,
+          y: dino.y,
+          w: dino.w,
+          h: dino.h,
+          ducking: dino.isDucking,
+          alpha: 0.5,
+          color: GHOST_COLORS[Math.floor(Math.random() * GHOST_COLORS.length)]
+        });
+      }
+
+      const drift = getGameSpeedPxPerSec() * 0.7 * dt;
+      for (let i = dinoGhostTrails.length - 1; i >= 0; i--) {
+        const g = dinoGhostTrails[i];
+        g.x -= drift;
+        g.alpha -= dt * 1.4;
+        if (g.alpha <= 0) dinoGhostTrails.splice(i, 1);
+      }
+    }
+
+    function drawGhostTrails(ctx) {
+      if (!dinoGhostTrails.length) return;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      dinoGhostTrails.forEach(g => {
+        const startX = Math.round(g.x);
+        const startY = Math.round(g.y);
+        const px = DINO_SCALE;
+        ctx.globalAlpha = Math.max(0, Math.min(0.5, g.alpha));
+        ctx.fillStyle = g.color;
+
+        const body = g.ducking ? DINO_DUCK_BODY : DINO_BODY;
+        for (let r = 0; r < body.length; r++) {
+          const rowStr = body[r];
+          for (let c = 0; c < rowStr.length; c++) {
+            if (rowStr[c] === 'X') {
+              ctx.fillRect(startX + c * px, startY + r * px, px, px);
+            }
+          }
+        }
+
+        const legs = g.ducking
+          ? DINO_DUCK_LEGS1
+          : (dino.isGrounded ? (dino.legFrame === 0 ? DINO_LEGS_RUN1 : DINO_LEGS_RUN2) : DINO_LEGS_JUMP);
+        const legOffset = g.ducking ? 12 : 19;
+        for (let r = 0; r < legs.length; r++) {
+          const rowStr = legs[r];
+          for (let c = 0; c < rowStr.length; c++) {
+            if (rowStr[c] === 'X') {
+              ctx.fillRect(startX + c * px, startY + (legOffset + r) * px, px, px);
+            }
+          }
+        }
+      });
+
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.restore();
+    }
+
+    function triggerSlowMo() {
+      slowMoActive = true;
+      slowMoElapsedMs = 0;
+      timeScale = SLOWMO_MIN_SCALE;
+      hitStopShakeFrames = 7; // 7 frame rung nhẹ 3 - 4px
+    }
+
+    function updateSlowMo(dt) {
+      if (!slowMoActive) return;
+
+      slowMoElapsedMs += dt * 1000;
+      if (slowMoElapsedMs <= SLOWMO_HOLD_MS) {
+        timeScale = SLOWMO_MIN_SCALE;
+      } else if (slowMoElapsedMs >= SLOWMO_MS) {
+        slowMoActive = false;
+        slowMoElapsedMs = 0;
+        timeScale = 1.0;
+      } else {
+        const t = (slowMoElapsedMs - SLOWMO_HOLD_MS) / (SLOWMO_MS - SLOWMO_HOLD_MS);
+        const eased = 1 - Math.pow(1 - t, 3); // Easing Out cubic
+        timeScale = SLOWMO_MIN_SCALE + (1 - SLOWMO_MIN_SCALE) * eased;
+      }
+    }
+
     function spawnFloatingScore(text, x, y, color = '#00e676') {
       const el = document.createElement('div');
       el.className = 'float-score';
@@ -2409,44 +2818,59 @@
         screenShake = Math.max(0, screenShake - dt * 25);
       }
 
+      // Cập nhật hiệu ứng slow-motion theo thời gian thực
+      updateSlowMo(dt);
+      const scaledDt = dt * timeScale;
+
+      // Hạt vỡ vụn & vệt sáng cũng chậm lại khi slow-mo để điện ảnh hơn
+      updatePixelParticles(scaledDt);
+      updateGhostTrails(scaledDt);
+
       if (gameState === 'PLAYING') {
-        const groundSpeed = 160;
-        cameraX += groundSpeed * dt;
+        const speedPxPerSec = getGameSpeedPxPerSec();
+        cameraX += speedPxPerSec * scaledDt;
 
         dino.update(dt);
 
-        if (currentObstacle) {
-          if (!currentObstacle.cleared) {
-            currentObstacle.timeLeft = Math.max(0, currentObstacle.timeLeft - dt);
-
-            // Audio warning tick trong 1.0 giây cuối cùng
-            const currentTick = Math.floor(currentObstacle.timeLeft * 2);
-            if (currentObstacle.timeLeft <= 1.0 && currentTick !== lastTickSecond) {
-              lastTickSecond = currentTick;
-              playWarningTick();
+        if (!currentObstacle) {
+          // Khoảng đệm bắt buộc trước khi rào kế tiếp xuất hiện (thời gian thực)
+          if (gapTimer > 0) {
+            gapTimer = Math.max(0, gapTimer - dt);
+            if (gapTimer <= 0) {
+              gapTimer = 0;
+              spawnNextObstacle();
             }
+          }
+        } else if (!currentObstacle.cleared) {
+          currentObstacle.timeLeft = Math.max(0, currentObstacle.timeLeft - scaledDt);
 
-            // Move obstacle toward Dino proportionally
-            const progress = currentObstacle.timeLeft / currentObstacle.totalTime;
-            const targetArrivalX = DINO_X + 26;
-            currentObstacle.x = targetArrivalX + (SPAWN_DISTANCE - 26) * progress;
+          // Audio warning tick trong 1.0 giây cuối cùng
+          const currentTick = Math.floor(currentObstacle.timeLeft * 2);
+          if (currentObstacle.timeLeft <= 1.0 && currentTick !== lastTickSecond) {
+            lastTickSecond = currentTick;
+            playWarningTick();
+          }
 
-            // Update Countdown UI & Rhythm Banner
-            updateCountdownAndRhythmUI(currentObstacle.timeLeft, currentObstacle.totalTime);
+          // Di chuyển vật cản: gameSpeed * timeScale
+          currentObstacle.x -= speedPxPerSec * scaledDt;
 
-            // Chạm vật cản khi chưa được xử lý bằng giọng nói => va chạm
-            if (currentObstacle.timeLeft <= 0 || currentObstacle.x <= targetArrivalX) {
-              const cause = currentObstacle.type === 'GROUND'
-                ? (dino.isDucking ? "ĐỌC NHẦM CÂU CÚI khi gặp xương rồng dưới đất!" : "Chưa kịp đọc câu NHẢY!")
-                : (!dino.isGrounded ? "ĐỌC NHẦM CÂU NHẢY đụng trúng dây điện trên đầu!" : "Chưa kịp đọc câu CÚI!");
-              handleCollision(cause);
-            }
-          } else {
-            // Rush cleared obstacle past Dino
-            currentObstacle.x -= currentObstacle.clearingSpeed * dt;
-            if (currentObstacle.x < -60) {
-              advanceToNextObstacle();
-            }
+          // Update Countdown UI & Rhythm Banner
+          updateCountdownAndRhythmUI(currentObstacle.timeLeft, currentObstacle.totalTime);
+
+          // Chạm vật cản khi chưa được xử lý bằng giọng nói => va chạm
+          const targetArrivalX = DINO_X + 26;
+          if (currentObstacle.timeLeft <= 0 || currentObstacle.x <= targetArrivalX) {
+            const cause = currentObstacle.type === 'GROUND'
+              ? (dino.isDucking ? "ĐỌC NHẦM CÂU CÚI khi gặp xương rồng dưới đất!" : "Chưa kịp đọc câu NHẢY!")
+              : (!dino.isGrounded ? "ĐỌC NHẦM CÂU NHẢY đụng trúng dây điện trên đầu!" : "Chưa kịp đọc câu CÚI!");
+            handleCollision(cause);
+          }
+        } else {
+          // Rào đã được phá: trôi nhanh ra khỏi màn hình
+          currentObstacle.x -= currentObstacle.clearingSpeed * scaledDt;
+          if (currentObstacle.x < -60) {
+            currentObstacle = null;
+            gapTimer = MIN_OBSTACLE_GAP;
           }
         }
       } else if (gameState === 'GAMEOVER') {
@@ -2456,11 +2880,20 @@
 
     function render() {
       ctx.save();
-      if (screenShake > 0) {
-        const shakeX = (Math.random() - 0.5) * screenShake * 8;
-        const shakeY = (Math.random() - 0.5) * screenShake * 8;
-        ctx.translate(shakeX, shakeY);
+
+      // Rung màn hình nhẹ 3 - 4px trong 5 - 8 frame đầu khi kích hoạt Slow-mo
+      let shakeX = 0;
+      let shakeY = 0;
+      if (hitStopShakeFrames > 0) {
+        hitStopShakeFrames--;
+        shakeX += (Math.random() - 0.5) * 4;
+        shakeY += (Math.random() - 0.5) * 4;
       }
+      if (screenShake > 0) {
+        shakeX += (Math.random() - 0.5) * screenShake * 8;
+        shakeY += (Math.random() - 0.5) * screenShake * 8;
+      }
+      if (shakeX || shakeY) ctx.translate(shakeX, shakeY);
 
       ctx.clearRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
@@ -2471,6 +2904,8 @@
         drawObstacle(ctx, currentObstacle);
       }
 
+      drawPixelParticles(ctx);
+      drawGhostTrails(ctx);
       dino.draw(ctx);
       ctx.restore();
     }
@@ -2527,6 +2962,7 @@
     }
 
     function spawnNextObstacle() {
+      gapTimer = 0;
       currentPair = getNextPair();
       currentObstacle = createObstacle(currentPair);
       lastTickSecond = -1;
@@ -2588,7 +3024,8 @@
       if (source !== 'voice') return;
       if (gameState !== 'PLAYING' || !currentObstacle || currentObstacle.cleared) return;
 
-      currentObstacle.cleared = true;
+      const obs = currentObstacle;
+      obs.cleared = true;
       wordsClearedCount++;
       comboCount++;
       if (comboCount > maxCombo) maxCombo = comboCount;
@@ -2604,19 +3041,37 @@
       if (navigator.vibrate) try { navigator.vibrate(80); } catch (e) {}
 
       // Calculate Score: 100 Base + Speed Bonus (nhanh trong 2s) + Combo Bonus
-      const speedBonus = Math.floor(currentObstacle.timeLeft * 60);
+      const speedBonus = Math.floor(obs.timeLeft * 60);
       const comboBonus = (comboCount - 1) * 35;
       const points = 100 + speedBonus + comboBonus;
       score += points;
       updateScoreUI();
 
-      let bonusStr = `+${points}`;
-      if (comboCount >= 2) bonusStr = `🔥 ${comboCount}x COMBO! +${points}`;
-      spawnFloatingScore(bonusStr, DINO_X + 24, dino.y - 12, action === 'NHẢY' ? '#ff9800' : '#7c4dff');
+      // Chướng ngại vật vỡ vụn thành các mảnh pixel neon
+      // (kẹp vị trí nổ vào vùng nhìn thấy để hiệu ứng luôn hiển thị đẹp)
+      const burstX = Math.max(DINO_X + 40, Math.min(obs.x, VIRTUAL_WIDTH - obs.w - 10));
+      explodeObstacle(burstX, obs.y, obs.w, obs.h);
+
+      // CÂU DÀI (> 2 từ): kích hoạt Slow-motion Hit-Stop 0.5s
+      const targetWordCount = (obs.targetSentence || '').trim().split(/\s+/).filter(w => w.length > 0).length;
+      const isLongSentence = targetWordCount > 2;
+
+      if (isLongSentence) {
+        triggerSlowMo();
+        spawnFloatingScore(`🔥 CHUẨN ĐÉT! +${points}`, DINO_X + 24, dino.y - 20, '#00e676');
+      } else {
+        let bonusStr = `+${points}`;
+        if (comboCount >= 2) bonusStr = `🔥 ${comboCount}x COMBO! +${points}`;
+        spawnFloatingScore(bonusStr, DINO_X + 24, dino.y - 12, action === 'NHẢY' ? '#ff9800' : '#7c4dff');
+      }
 
       liveTranscriptTextEl.classList.add('match-pop');
       liveTranscriptTextEl.textContent = `🎯 ĐÚNG CÂU ${action}! (+${points})`;
       setTimeout(() => liveTranscriptTextEl.classList.remove('match-pop'), 1200);
+
+      // Rào cản gốc lập tức biến mất để không tính va chạm thua game
+      currentObstacle = null;
+      gapTimer = MIN_OBSTACLE_GAP;
 
       // Duy trì nhịp phản xạ tối đa 2.0s (rút ngắn nhẹ tối thiểu 1.4s khi lên level cao)
       currentApproachTime = Math.max(1.4, currentApproachTime - 0.02);
@@ -2631,6 +3086,7 @@
       if (gameState !== 'PLAYING') return;
 
       gameState = 'GAMEOVER';
+      isGameRunning = false;
       dino.isDead = true;
       screenShake = 1.0;
       comboCount = 0;
@@ -2667,11 +3123,12 @@
       if (micRestartTimer) return;
       micRestartTimer = setTimeout(() => {
         micRestartTimer = null;
-        if (gameState === 'PLAYING' && isMicEnabled && recognition && !isListening) {
+        if (isGameRunning && isMicEnabled && recognition && !isListening) {
           try {
             recognition.start();
           } catch (e) {
             console.warn('Không thể tự kết nối lại Mic:', e);
+            if (isGameRunning) scheduleMicRestart(600);
           }
         }
       }, delay);
@@ -2691,7 +3148,9 @@
 
         recognition = new SpeechRecognition();
         recognition.lang = 'vi-VN';
-        recognition.continuous = true;
+        // continuous = false + interimResults = true: tránh buffer giọng nói bị nghẽn trên iOS Safari & Chrome Android.
+        // Vòng lặp thu âm liên tục được duy trì thủ công trong recognition.onend.
+        recognition.continuous = false;
         recognition.interimResults = true;
         recognition.maxAlternatives = 3;
 
@@ -2741,7 +3200,7 @@
             }
 
             // Bỏ qua 'no-speech' và tự kết nối lại Mic khi đang chơi
-            if (gameState === 'PLAYING' && isMicEnabled && event.error !== 'aborted') {
+            if (isGameRunning && isMicEnabled && event.error !== 'aborted') {
               if (micLedEl) micLedEl.className = 'mic-led listening';
               scheduleMicRestart(300);
             }
@@ -2751,8 +3210,13 @@
         recognition.onend = () => {
           isListening = false;
           try {
-            if (gameState === 'PLAYING' && isMicEnabled && recognition) {
-              scheduleMicRestart(180);
+            // Duy trì vòng lặp thu âm liên tục trên mobile: tự khởi động lại ngay khi game còn chạy.
+            if (isGameRunning && isMicEnabled && recognition) {
+              try {
+                recognition.start();
+              } catch (restartErr) {
+                scheduleMicRestart(400);
+              }
             } else {
               if (micLedEl) micLedEl.className = 'mic-led';
             }
@@ -2798,8 +3262,8 @@
       const jumpScore = evaluateSentenceMatch(spokenText, currentPair.jump);
       const duckScore = evaluateSentenceMatch(spokenText, currentPair.duck);
 
-      // Ngưỡng đạt từ khóa: 60% cho Từ đơn, 70% cho Câu dài
-      const THRESHOLD = isWord ? 0.60 : 0.70;
+      // Ngưỡng đạt từ khóa: 60% cho cả Từ đơn và Câu dài (Fuzzy matching cho phép nói lướt)
+      const THRESHOLD = 0.60;
       const JUMP_MATCH = jumpScore >= THRESHOLD;
       const DUCK_MATCH = duckScore >= THRESHOLD;
 
@@ -2861,6 +3325,19 @@
       maxCombo = 0;
       currentApproachTime = 2.0; // Tối đa 2.0 giây
       cameraX = 0;
+      currentObstacle = null;
+      gapTimer = 0;
+
+      // Reset hiệu ứng slow-motion, hạt vỡ vụn và vệt sáng
+      timeScale = 1.0;
+      slowMoActive = false;
+      slowMoElapsedMs = 0;
+      hitStopShakeFrames = 0;
+      pixelParticles.length = 0;
+      safeGlows.length = 0;
+      dinoGhostTrails.length = 0;
+      ghostFrameCounter = 0;
+
       updateScoreUI();
 
       dino.y = DINO_STAND_Y;
@@ -2872,6 +3349,7 @@
       dino.isDead = false;
 
       gameState = 'PLAYING';
+      isGameRunning = true;
 
       try { startMic(); } catch (e) {}
       spawnNextObstacle();
@@ -2935,10 +3413,20 @@
         });
       });
 
-      // 2. Nút Bắt đầu chơi
+      // 2. Nút Bắt đầu chơi -> hiện bảng quy tắc trước khi vào game
       const startBtn = document.getElementById('startPlayBtn');
       if (startBtn) {
         bind(startBtn, () => {
+          openRulesModal();
+        });
+      }
+
+      // 2b. Nút "VÀO CHƠI LUÔN" trong bảng quy tắc -> kích hoạt mic bằng user gesture
+      const rulesEnterBtn = document.getElementById('rulesEnterBtn');
+      if (rulesEnterBtn) {
+        bind(rulesEnterBtn, () => {
+          const rules = document.getElementById('rulesModal');
+          if (rules) { rules.classList.remove('active'); rules.style.display = 'none'; }
           startGame();
         });
       }
@@ -2992,6 +3480,18 @@
       if (regionModal) {
         regionModal.style.display = 'flex';
         regionModal.classList.add('active');
+      }
+    }
+
+    function openRulesModal() {
+      const rm = document.getElementById('regionModal');
+      if (rm) { rm.classList.remove('active'); rm.style.display = 'none'; }
+      const gom = document.getElementById('gameOverModal');
+      if (gom) { gom.classList.remove('active'); gom.style.display = 'none'; }
+      const rules = document.getElementById('rulesModal');
+      if (rules) {
+        rules.style.display = 'flex';
+        rules.classList.add('active');
       }
     }
 
