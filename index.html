@@ -2041,7 +2041,7 @@
       return text
         .toLowerCase()
         .trim()
-        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'–—]/g, ' ')
+        .replace(/[.,!?;:…\/#%^&*={}\-_`~()\[\]"'“”‘’–—]/g, ' ')
         .replace(/\s+/g, ' ');
     }
 
@@ -2092,6 +2092,12 @@
       // Cùng chữ cái, có thể lệch dấu thanh
       if (unSpoken === unTarget) return 0.97;
 
+      // ASR có thể tách/gộp âm tiết: chấp nhận khi một từ nằm trong từ còn lại
+      const minSubLen = Math.min(unSpoken.length, unTarget.length);
+      if (minSubLen >= 3 && (unSpoken.includes(unTarget) || unTarget.includes(unSpoken))) {
+        return 0.9;
+      }
+
       // Fuzzy chỉ áp dụng cho từ đủ dài, tránh khớp nhầm các từ ngắn
       const minLen = Math.min(unSpoken.length, unTarget.length);
       if (minLen < 3) return 0;
@@ -2099,7 +2105,7 @@
         wordSimilarity(unSpoken, unTarget),
         wordSimilarity(spokenToken, targetToken)
       );
-      return sim >= 0.85 ? sim : 0;
+      return sim >= 0.78 ? sim : 0;
     }
 
     // Trả về tỷ lệ token mục tiêu được đọc đúng (khớp 1-1, không dùng includes mảnh)
@@ -2138,16 +2144,17 @@
           }
         });
 
-        if (bestScore >= 0.85 && bestIndex >= 0) {
+        if (bestScore >= 0.78 && bestIndex >= 0) {
           used[bestIndex] = true;
           matchedFlags[ti] = true;
           matched++;
         }
       });
 
-      // Bắt buộc phải đọc tới từ cuối cùng của câu, tránh xác nhận khi bỏ dở đuôi câu
+      // Bắt buộc phải đọc tới từ cuối cùng của câu, tránh xác nhận khi bỏ dở đuôi câu.
+      // Trần 0.79 luôn thấp hơn ngưỡng đạt 0.80 của câu dài.
       if (!matchedFlags[matchedFlags.length - 1]) {
-        return Math.min(0.84, matched / targetTokens.length);
+        return Math.min(0.79, matched / targetTokens.length);
       }
 
       return matched / targetTokens.length;
@@ -3041,6 +3048,9 @@
       currentObstacle = createObstacle(currentPair);
       lastTickSecond = -1;
 
+      // Mic phải đang thu âm trước khi chữ mới hiện ra
+      safeStartRecognition();
+
       updatePopupUI(currentObstacle);
       updateCountdownAndRhythmUI(currentObstacle.timeLeft, currentObstacle.totalTime);
     }
@@ -3148,6 +3158,9 @@
       gapTimer = MIN_OBSTACLE_GAP;
       spokenBuffer = '';
 
+      // Đảm bảo phiên thu âm mới sẵn sàng ngay cho câu kế tiếp
+      safeStartRecognition();
+
       // Duy trì nhịp phản xạ tối đa 2.0s (rút ngắn nhẹ tối thiểu 1.4s khi lên level cao)
       currentApproachTime = Math.max(1.4, currentApproachTime - 0.02);
     }
@@ -3163,6 +3176,7 @@
       gameState = 'GAMEOVER';
       isGameRunning = false;
       spokenBuffer = '';
+      try { if (recognition) recognition.stop(); } catch (e) {}
       dino.isDead = true;
       screenShake = 1.0;
       comboCount = 0;
@@ -3194,20 +3208,50 @@
     let isListening = false;
     let micSupported = false;
     let micRestartTimer = null;
+    let micWatchdogTimer = null;
+    let micStartGuardUntil = 0;
+    let lastRecognitionAt = 0;
 
-    function scheduleMicRestart(delay = 250) {
+    // Khởi động lại mic an toàn, chống gọi start() trùng lặp gây lỗi InvalidStateError
+    function safeStartRecognition() {
+      if (!recognition || !isMicEnabled || !isGameRunning) return;
+      if (isListening) return;
+      if (Date.now() < micStartGuardUntil) return;
+
+      micStartGuardUntil = Date.now() + 800;
+      try {
+        recognition.start();
+        lastRecognitionAt = Date.now();
+      } catch (e) {
+        // Engine còn kẹt phiên cũ: hủy phiên và thử lại ngay sau đó
+        try { recognition.abort(); } catch (_) {}
+        isListening = false;
+        micStartGuardUntil = 0;
+        setTimeout(() => {
+          if (isGameRunning && isMicEnabled && !isListening) safeStartRecognition();
+        }, 120);
+      }
+    }
+
+    function scheduleMicRestart(delay = 150) {
       if (micRestartTimer) return;
       micRestartTimer = setTimeout(() => {
         micRestartTimer = null;
-        if (isGameRunning && isMicEnabled && recognition && !isListening) {
-          try {
-            recognition.start();
-          } catch (e) {
-            console.warn('Không thể tự kết nối lại Mic:', e);
-            if (isGameRunning) scheduleMicRestart(600);
-          }
-        }
+        micStartGuardUntil = 0;
+        safeStartRecognition();
       }, delay);
+    }
+
+    // Watchdog: nếu mic im lặng bất thường hoặc phiên bị ngắt mà không tự bật lại,
+    // tự khôi phục để câu tiếp theo luôn được thu âm.
+    function startMicWatchdog() {
+      if (micWatchdogTimer) return;
+      micWatchdogTimer = setInterval(() => {
+        if (!isGameRunning || !isMicEnabled || !recognition) return;
+        if (!isListening && Date.now() >= micStartGuardUntil) {
+          safeStartRecognition();
+        }
+      }, 300);
     }
 
     function initSpeechRecognition() {
@@ -3224,15 +3268,17 @@
 
         recognition = new SpeechRecognition();
         recognition.lang = 'vi-VN';
-        // continuous = true: stream kết quả liên tục, không phải chờ hết câu mới trả final
-        // => phản hồi gần như đồng bộ với chữ đang đọc trên màn hình.
-        // interimResults = true: cập nhật từng từ ngay khi người chơi đang nói.
-        recognition.continuous = true;
+        // continuous = false: mỗi lượt đọc là một phiên riêng, engine tự chốt câu và
+        // onend bật lại ngay => câu thứ 2, thứ 3 luôn được thu âm, không bị kẹt phiên.
+        // interimResults = true: vẫn cập nhật từng từ ngay khi người chơi đang đọc.
+        recognition.continuous = false;
         recognition.interimResults = true;
         recognition.maxAlternatives = 3;
 
         recognition.onstart = () => {
           isListening = true;
+          lastRecognitionAt = Date.now();
+          micStartGuardUntil = 0;
           if (micRestartTimer) {
             clearTimeout(micRestartTimer);
             micRestartTimer = null;
@@ -3243,6 +3289,8 @@
 
         recognition.onresult = (event) => {
           try {
+            lastRecognitionAt = Date.now();
+
             let interim = '';
             let final = '';
             const altFinals = [];
@@ -3309,10 +3357,10 @@
               return;
             }
 
-            // Bỏ qua 'no-speech' và tự kết nối lại Mic khi đang chơi
+            // Các lỗi tạm thời (no-speech, network, aborted...) không làm dừng game.
+            // onend sẽ tự bật lại mic; watchdog xử lý nốt nếu engine không phát onend.
             if (isGameRunning && isMicEnabled && event.error !== 'aborted') {
-              if (micLedEl) micLedEl.className = 'mic-led listening';
-              scheduleMicRestart(150);
+              scheduleMicRestart(120);
             }
           } catch (err) {}
         };
@@ -3320,13 +3368,10 @@
         recognition.onend = () => {
           isListening = false;
           try {
-            // Duy trì vòng lặp thu âm liên tục trên mobile: tự khởi động lại ngay khi game còn chạy.
             if (isGameRunning && isMicEnabled && recognition) {
-              try {
-                recognition.start();
-              } catch (restartErr) {
-                scheduleMicRestart(150);
-              }
+              // Bật lại ngay lập tức (không thêm delay) để câu tiếp theo không bị mất tiếng
+              micStartGuardUntil = 0;
+              safeStartRecognition();
             } else {
               if (micLedEl) micLedEl.className = 'mic-led';
             }
@@ -3354,9 +3399,10 @@
       }
       try {
         if (!recognition) initSpeechRecognition();
-        if (recognition && !isListening) {
-          recognition.start();
-        }
+        startMicWatchdog();
+        micStartGuardUntil = 0;
+        isListening = false;
+        safeStartRecognition();
       } catch (e) {
         console.warn('Không thể bật Mic:', e);
       }
@@ -3370,9 +3416,9 @@
       const jumpScore = evaluateSentenceMatch(spokenText, currentPair.jump);
       const duckScore = evaluateSentenceMatch(spokenText, currentPair.duck);
 
-      // Từ đơn: phải đọc đủ tất cả từ khóa. Câu dài: phải đọc đủ >= 90% số từ (gồm cả từ cuối).
-      // Kết quả interim bắt buộc khớp trọn câu để không xác nhận khi người chơi chưa đọc hết.
-      const threshold = isWord ? 0.95 : (allowFuzzy ? 0.9 : 0.95);
+      // Từ đơn: phải khớp đủ các từ khóa. Câu dài: chỉ cần >= 80% số từ (gồm cả từ cuối)
+      // để dung sai lỗi nhận diện của micro điện thoại.
+      const threshold = isWord ? 0.95 : (allowFuzzy ? 0.8 : 0.95);
       return { jumpScore, duckScore, threshold };
     }
 
