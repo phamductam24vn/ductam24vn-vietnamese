@@ -1,0 +1,3019 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1c23">
+  <title>🦖 NÓI CHUẨN THÌ QUA – NÓI SAI VẤP RÀO 🦖 | Chrome Dino Voice Runner</title>
+  <style>
+    /* ==========================================================================
+       RESET & BASE THEME (NÓN LÁ - NÓI ĐỂ BAY RETRO ARCADE)
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    :root {
+      --bg-dark: #12131a;
+      --panel-bg: #161824;
+      --card-bg: #1e202c;
+      --text-main: #ffffff;
+      --text-muted: #d1d5db;
+      --text-yellow: #fde68a;
+      --border-card: #374151;
+      --border-selected: #f59e0b;
+      --btn-green: #10b981;
+      --dino-gray: #535353;
+      --accent-jump: #ff6f00;      /* Cam rực rỡ cho lệnh NHẢY */
+      --accent-jump-bg: #fff3e0;
+      --accent-duck: #7c4dff;      /* Tím huyền bí cho lệnh CÚI */
+      --accent-duck-bg: #ede7f6;
+      --neon-green: #00e676;
+      --alert-red: #ff1744;
+      --warning-yellow: #ffd600;
+      --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --pixel-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #0a0b0e;
+      font-family: var(--system-font);
+      color: var(--text-main);
+      touch-action: manipulation;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* Đồng bộ font hệ thống sắc nét + khử răng cưa cho toàn bộ UI Shell & Menu */
+    .top-hud,
+    .bottom-control-deck,
+    .top-command-popup,
+    .modal-overlay,
+    .modal-card,
+    .region-card,
+    .start-play-btn,
+    .gameover-btn {
+      font-family: var(--system-font);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* Khung dọc Mobile-First chuẩn điện thoại */
+    .game-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      height: 100%;
+      height: 100dvh;
+      margin: 0 auto;
+      background-color: #f7f7f7;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.6);
+      border-left: 2px solid #333;
+      border-right: 2px solid #333;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ==========================================================================
+       1. TOP HUD BAR
+       ========================================================================== */
+    .top-hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 2px solid #333;
+      background-color: #222530;
+      color: #fff;
+      z-index: 20;
+      min-height: 48px;
+    }
+
+    .hud-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .region-badge-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background-color: #1e2130;
+      border: 1.5px solid #374151;
+      padding: 6px 10px;
+      font-family: var(--system-font);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #fff;
+      cursor: pointer;
+      text-transform: uppercase;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      transition: background-color 0.15s;
+    }
+
+    .region-badge-btn:hover {
+      background-color: #272a3c;
+      border-color: #f59e0b;
+    }
+
+    .icon-btn {
+      background: #1e2130;
+      border: 1.5px solid #374151;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: var(--system-font);
+      font-size: 13px;
+      cursor: pointer;
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      transition: background-color 0.15s;
+    }
+
+    .icon-btn:hover {
+      background-color: #272a3c;
+    }
+
+    .scores-display {
+      display: flex;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .hi-score-text { color: #cbd5e1; }
+    .current-score-text { color: var(--neon-green); text-shadow: 0 0 6px rgba(0, 230, 118, 0.4); }
+
+    /* ==========================================================================
+       2. CANVAS STAGE
+       ========================================================================== */
+    .canvas-container {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      background-color: #f7f7f7;
+      overflow: hidden;
+      cursor: default;
+      pointer-events: none !important; /* Khóa hoàn toàn tương tác chạm/click trên sân khấu game */
+    }
+
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      display: block;
+      background-color: transparent;
+      pointer-events: none !important; /* Tuyệt đối không để Canvas chặn sự kiện click/tap */
+    }
+
+    /* Đèn Báo Nhịp (Rhythm & Urgency Banner) */
+    .rhythm-indicator-bar {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92%;
+      max-width: 420px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      pointer-events: none !important; /* Không cản trở click trên canvas stage */
+    }
+
+    .rhythm-indicator-bar.waiting {
+      background: #202430;
+      color: #81d4fa;
+      border: 1.5px solid #0288d1;
+    }
+
+    .rhythm-indicator-bar.urgent {
+      background: #b71c1c;
+      color: #fff;
+      border: 2px solid #ff1744;
+      animation: alertFlash 0.35s infinite alternate;
+    }
+
+    @keyframes alertFlash {
+      0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 10px #ff1744; }
+      100% { transform: translateX(-50%) scale(1.03); box-shadow: 0 0 18px #ff5252; }
+    }
+
+    /* Thanh tiến trình thời gian co lại */
+    .countdown-bar-wrapper {
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: rgba(0, 0, 0, 0.15);
+      z-index: 10;
+      pointer-events: none !important;
+    }
+
+    .countdown-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: var(--neon-green);
+      transition: width 0.05s linear, background-color 0.25s;
+    }
+
+    /* Floating Score Popup */
+    .floating-text-container {
+      position: absolute;
+      pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 15;
+    }
+
+    .float-score {
+      position: absolute;
+      font-weight: 900;
+      font-size: 15px;
+      text-shadow: 1px 1px 0 #fff;
+      animation: floatUp 0.85s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-38px) scale(1.25); }
+    }
+
+    /* ==========================================================================
+       3. BẢNG LỆNH DUY NHẤT HIỆN POPUP Ở PHÍA TRÊN (3 - 5 GIÂY)
+       ========================================================================== */
+    .top-command-popup {
+      position: relative;
+      margin: 6px 10px 4px 10px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+      border: 2px solid #555;
+      background: #181922;
+      z-index: 25;
+      animation: popupSlideIn 0.25s ease-out;
+    }
+
+    @keyframes popupSlideIn {
+      0% { transform: translateY(-8px) scale(0.96); opacity: 0.7; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    /* Style cho Lệnh NHẢY (Cam Neon) */
+    .top-command-popup.jump-mode {
+      border-color: #ff9800;
+      background: linear-gradient(135deg, #2a1705 0%, #1a1220 100%);
+      box-shadow: 0 0 16px rgba(255, 152, 0, 0.4), inset 0 0 8px rgba(255, 152, 0, 0.15);
+    }
+
+    /* Style cho Lệnh CÚI (Tím Neon) */
+    .top-command-popup.duck-mode {
+      border-color: #b388ff;
+      background: linear-gradient(135deg, #200f35 0%, #121526 100%);
+      box-shadow: 0 0 16px rgba(179, 136, 255, 0.4), inset 0 0 8px rgba(179, 136, 255, 0.15);
+    }
+
+    .popup-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .popup-action-badge {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      padding: 4px 9px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-transform: uppercase;
+    }
+
+    .jump-mode .popup-action-badge {
+      background: #ff6f00;
+      color: #fff;
+      box-shadow: 0 0 8px #ff6f00;
+    }
+
+    .duck-mode .popup-action-badge {
+      background: #7c4dff;
+      color: #fff;
+      box-shadow: 0 0 8px #7c4dff;
+    }
+
+    .popup-meta-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .popup-region-tag {
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: #ffd54f;
+    }
+
+    .popup-timer-badge {
+      font-size: 13px;
+      font-weight: 900;
+      font-family: var(--system-font);
+      font-variant-numeric: tabular-nums;
+      color: #00e676;
+      background: #000;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid #444;
+      min-width: 52px;
+      text-align: center;
+    }
+
+    .popup-timer-badge.urgent {
+      color: #ff1744;
+      border-color: #ff1744;
+      box-shadow: 0 0 8px #ff1744;
+      animation: timerBlink 0.3s infinite alternate;
+    }
+
+    @keyframes timerBlink {
+      0% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+
+    /* Reading Card Box: Khung chữ to rõ ràng, tương phản cao */
+    .reading-card-box {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 2px 0;
+    }
+
+    .jump-mode .reading-card-box {
+      border-color: rgba(255, 152, 0, 0.6);
+      background: rgba(42, 23, 5, 0.85);
+      box-shadow: inset 0 0 12px rgba(255, 111, 0, 0.25);
+    }
+
+    .duck-mode .reading-card-box {
+      border-color: rgba(179, 136, 255, 0.6);
+      background: rgba(32, 15, 53, 0.85);
+      box-shadow: inset 0 0 12px rgba(124, 77, 255, 0.25);
+    }
+
+    .popup-reading-label {
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #d1d5db;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .popup-sentence-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .popup-sentence-text {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.35;
+      flex: 1;
+      letter-spacing: 0.3px;
+      transition: all 0.2s ease;
+    }
+
+    /* Chế độ TỪ ĐƠN (WORD): Chữ to khổng lồ, nổi bật tuyệt đối */
+    .word-mode-active .popup-sentence-text {
+      font-size: 26px !important;
+      font-weight: 900 !important;
+      letter-spacing: 1px !important;
+      text-transform: uppercase !important;
+    }
+
+    .jump-mode .popup-sentence-text {
+      color: #ffeb3b;
+      text-shadow: 0 0 10px rgba(255, 235, 59, 0.45), 0 2px 4px #000;
+    }
+
+    .duck-mode .popup-sentence-text {
+      color: #00e5ff;
+      text-shadow: 0 0 10px rgba(0, 229, 255, 0.45), 0 2px 4px #000;
+    }
+
+    .mini-tts-btn {
+      background: #33384a;
+      border: 1px solid #666;
+      color: #fff;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 11.5px;
+      font-weight: 800;
+      line-height: 1.2;
+      cursor: pointer !important;
+      flex-shrink: 0;
+      pointer-events: auto !important;
+      touch-action: manipulation !important;
+    }
+
+    .mini-tts-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Thanh tiến trình co lại ngay đáy popup */
+    .popup-progress-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+
+    .popup-progress-fill {
+      width: 100%;
+      height: 100%;
+      background: var(--neon-green);
+      transition: width 0.05s linear, background-color 0.2s;
+    }
+
+    .popup-progress-fill.urgent {
+      background: var(--alert-red);
+    }
+
+    /* Thanh điều khiển dưới gọn gàng */
+    .bottom-control-deck {
+      background: #181920;
+      border-top: 2px solid #333;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 20;
+    }
+
+    /* ==========================================================================
+       4. DÒNG TRẠNG THÁI MIC
+       ========================================================================== */
+    .mic-control-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 2px;
+    }
+
+    .mic-live-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #101116;
+      border: 1.5px solid #374151;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 12px;
+      min-height: 36px;
+    }
+
+    .mic-led {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #666;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .mic-led.listening {
+      background: var(--neon-green);
+      box-shadow: 0 0 8px var(--neon-green);
+      animation: ledPulse 0.8s infinite alternate;
+    }
+
+    .mic-led.hearing {
+      background: var(--warning-yellow);
+      box-shadow: 0 0 10px var(--warning-yellow);
+    }
+
+    .mic-led.error {
+      background: var(--alert-red);
+      box-shadow: 0 0 8px var(--alert-red);
+    }
+
+    @keyframes ledPulse {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .transcript-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #00e676;
+      font-weight: 700;
+    }
+
+    .transcript-text.match-pop {
+      color: #ffeb3b;
+      font-weight: 900;
+    }
+
+    /* ==========================================================================
+       5. MODALS & OVERLAYS (HIGH CONTRAST RETINA DISPLAY DARK-MODE)
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      background: rgba(4, 5, 10, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 14px;
+      z-index: 99999 !important;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      pointer-events: auto !important;
+      touch-action: manipulation !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    .modal-overlay.active {
+      display: flex !important;
+      pointer-events: auto !important;
+    }
+
+    .modal-card {
+      position: relative !important;
+      z-index: 100000 !important;
+      pointer-events: auto !important;
+      width: 100%;
+      max-width: 440px;
+      background: #12131a;
+      border: 1.5px solid #374151;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 90vh;
+      max-height: 90dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      color: #ffffff;
+      font-family: var(--system-font);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    .modal-title {
+      font-family: var(--system-font);
+      font-size: clamp(19px, 5vw, 21px);
+      font-weight: 800;
+      text-align: center;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+      line-height: 1.3;
+      border-bottom: 1.5px dashed #374151;
+      padding-bottom: 12px;
+      margin: 0;
+    }
+
+    .modal-subtitle {
+      font-family: var(--system-font);
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      color: #d1d5db;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .region-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 2px 0;
+      position: relative !important;
+      z-index: 100001 !important;
+    }
+
+    .region-card {
+      position: relative !important;
+      z-index: 100002 !important;
+      border: 1.5px solid #374151;
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer !important;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #1a1b26;
+      min-height: 64px;
+      transition: all 0.15s ease;
+      pointer-events: auto !important;
+      touch-action: manipulation !important;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: rgba(245, 158, 11, 0.25);
+    }
+
+    /* Đảm bảo khi tap vào icon hay chữ trong thẻ thì thẻ cha luôn nhận sự kiện */
+    .region-card * {
+      pointer-events: none !important;
+    }
+
+    .region-card:hover, .region-card:active {
+      background: #232738;
+      border-color: #f59e0b;
+    }
+
+    .region-card.selected {
+      border-color: #f59e0b !important;
+      border-width: 2px !important;
+      background: #232738 !important;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.35), inset 0 0 8px rgba(245, 158, 11, 0.12);
+    }
+
+    .region-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .region-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .region-name {
+      font-family: var(--system-font);
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    .region-desc {
+      font-family: var(--system-font);
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #d1d5db;
+      line-height: 1.45;
+    }
+
+    .start-play-btn {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      background: #10b981;
+      border: 1.5px solid #059669;
+      color: #ffffff;
+      font-family: var(--system-font);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+      padding: 14px 16px;
+      min-height: 52px;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      touch-action: manipulation !important;
+      text-transform: uppercase;
+      text-align: center;
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .start-play-btn:hover, .start-play-btn:focus-visible {
+      background: #059669;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.55);
+    }
+
+    .start-play-btn:active {
+      transform: translateY(1.5px);
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+    }
+
+    .gameover-box {
+      background: #161824;
+      border: 1.5px solid #374151;
+      padding: 12px 14px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .gameover-row {
+      display: flex;
+      justify-content: space-around;
+      margin: 4px 0;
+      font-family: var(--system-font);
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .gameover-stats-line {
+      font-family: var(--system-font);
+      font-size: 13px;
+      color: #d1d5db;
+      margin-top: 6px;
+    }
+
+    .rank-badge {
+      background: #2a1b0a;
+      border: 1.5px solid #f59e0b;
+      color: #fde68a;
+      padding: 10px 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-family: var(--system-font);
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .gameover-btn {
+      appearance: none;
+      -webkit-appearance: none;
+      flex: 1;
+      font-family: var(--system-font);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      line-height: 1.2;
+      padding: 12px 14px;
+      min-height: 48px;
+      border-radius: 8px;
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      touch-action: manipulation !important;
+      text-align: center;
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .gameover-btn.replay {
+      background: #10b981;
+      border: 1.5px solid #059669;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .gameover-btn.replay:active {
+      transform: translateY(1.5px);
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+    }
+
+    .gameover-btn.change-region {
+      background: #374151;
+      border: 1.5px solid #4b5563;
+      color: #ffffff;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .gameover-btn.change-region:active {
+      transform: translateY(1.5px);
+      background: #2d3340;
+    }
+
+    /* Menu chính: tận dụng không gian sau khi bỏ hộp hướng dẫn */
+    #regionModal .modal-card {
+      gap: 10px;
+      padding: 16px;
+    }
+
+    /* ==========================================================================
+       UX/UI PROMPT #351 · Velocity-leaning scroll list (scoped to .u351)
+       MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#351
+       Token mapping: project is a single dark theme (global CSS variables).
+       ========================================================================== */
+    .u351 {
+      --ux-page: var(--bg-dark);
+      --ux-surface: var(--panel-bg);
+      --ux-surface-2: var(--card-bg);
+      --ux-surface-3: #252632;
+      --ux-ink: var(--text-main);
+      --ux-ink-2: var(--text-muted);
+      --ux-ink-3: #b9c0cf;
+      --ux-line: rgba(255, 255, 255, 0.08);
+      --ux-line-2: rgba(255, 255, 255, 0.16);
+      --ux-accent: var(--border-selected);
+      --ux-accent-2: var(--neon-green);
+      --ux-accent-soft: rgba(245, 158, 11, 0.15);
+      --ux-accent-ink: #0b0c12;
+      --ux-mint: var(--neon-green);
+      --ux-warn: var(--warning-yellow);
+      --ux-danger: var(--alert-red);
+      --ux-glass: rgba(255, 255, 255, 0.07);
+      --ux-glass-line: rgba(255, 255, 255, 0.18);
+      --ux-shadow: rgba(0, 0, 0, 0.45);
+      --ux-shadow-strong: rgba(0, 0, 0, 0.72);
+      --ux-grad: linear-gradient(120deg, #f59e0b, #00e676);
+      --ux-ease: cubic-bezier(.2, .8, .2, 1);
+      --ux-spring: cubic-bezier(.34, 1.45, .64, 1);
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      height: clamp(280px, 56vh, 480px);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      border-radius: 28px;
+      background: var(--ux-surface);
+      box-shadow: 0 0 0 1px var(--ux-line), 0 30px 60px -36px var(--ux-shadow-strong);
+      overflow: hidden;
+      color: var(--ux-ink);
+      color-scheme: dark;
+      font-family: var(--system-font);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      letter-spacing: -.01em;
+      -webkit-tap-highlight-color: transparent;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .u351 *,
+    .u351 *::before,
+    .u351 *::after { box-sizing: border-box; }
+
+    .u351 :where(button, input, textarea, select) { font: inherit; color: inherit; }
+    .u351 :focus-visible { outline: 2px solid var(--ux-accent); outline-offset: 3px; }
+    .u351 [hidden] { display: none !important; }
+
+    .u351-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px 10px;
+    }
+
+    .u351-hd b { font-size: 17px; font-weight: 850; }
+
+    .u351-g {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 750;
+      color: var(--ux-ink-3);
+    }
+
+    .u351-g svg { width: 44px; height: 26px; overflow: visible; }
+    .u351-g path { fill: none; stroke: var(--ux-line-2); stroke-width: 4; stroke-linecap: round; }
+    .u351-g line {
+      stroke: var(--ux-danger);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      transform-box: view-box;
+      transform-origin: 22px 24px;
+    }
+
+    .u351-sc {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 4px 20px 16px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      overscroll-behavior: contain;
+      outline: none;
+    }
+
+    .u351-sc::-webkit-scrollbar { display: none; }
+
+    .u351-ls {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      transform-origin: 50% 50%;
+      will-change: transform;
+    }
+
+    .u351-it {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      height: auto;
+      min-height: 68px;
+      padding: 10px 14px;
+      border-radius: 18px;
+      background: var(--ux-surface-2);
+      box-shadow: inset 0 0 0 1px var(--ux-line);
+      cursor: pointer;
+      transition: background-color .15s var(--ux-ease), box-shadow .15s var(--ux-ease);
+    }
+
+    .u351-it > div { flex: 1; min-width: 0; }
+
+    .u351-it i {
+      flex: none;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      font-style: normal;
+      font-size: 22px;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--a), var(--b));
+    }
+
+    .u351-it b { display: block; font-size: 14.5px; font-weight: 780; line-height: 1.3; }
+
+    .u351-it span {
+      display: block;
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.4;
+      color: var(--ux-ink-3);
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+
+    .u351-it:hover,
+    .u351-it:active { background: var(--ux-surface-3); }
+
+    .u351-it.selected {
+      background: var(--ux-surface-3);
+      box-shadow: inset 0 0 0 2px var(--ux-accent), 0 0 14px var(--ux-accent-soft);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .u351,
+      .u351 *,
+      .u351 *::before,
+      .u351 *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-wrapper" id="gameWrapper">
+    <!-- 1. TOP HUD -->
+    <header class="top-hud">
+      <div class="hud-left">
+        <button id="regionBadgeBtn" onclick="window.openRegionModalDirect()" class="region-badge-btn" title="Đổi Vùng Miền">
+          <span id="regionIcon">🏮</span>
+          <span id="regionNameText">Miền Bắc</span>
+          <span style="font-size: 10px;">▼</span>
+        </button>
+        <button id="soundToggleBtn" onclick="window.toggleSoundDirect()" class="icon-btn" title="Bật/Tắt Âm Thanh">🔊</button>
+      </div>
+
+      <div class="scores-display">
+        <div class="hi-score-text">HI <span id="hiScoreVal">00000</span></div>
+        <div class="current-score-text"><span id="scoreVal">00000</span></div>
+      </div>
+    </header>
+
+    <!-- 2. BẢNG CHỮ LỆNH DUY NHẤT HIỆN POPUP Ở PHÍA TRÊN (3 - 5 GIÂY TÙY ĐỘ DÀI CÂU) -->
+    <div id="topCommandPopup" class="top-command-popup jump-mode">
+      <div class="popup-header-row">
+        <span id="popupActionBadge" class="popup-action-badge">↑ NHẢY VỌT QUA XƯƠNG RỒNG</span>
+        <div class="popup-meta-right">
+          <span id="popupRegionTag" class="popup-region-tag">🏮 Miền Bắc</span>
+          <span id="popupTimerBadge" class="popup-timer-badge">4.2s</span>
+        </div>
+      </div>
+      <div class="reading-card-box">
+        <div class="popup-reading-label">
+          <span>🎯 HÃY ĐỌC TO RÕ RÀNG:</span>
+          <span id="popupModeIndicator" style="color:#ffd600; font-size:11px; font-weight:800;">[TỪ ĐƠN]</span>
+        </div>
+        <div class="popup-sentence-row">
+          <span id="popupSentenceText" class="popup-sentence-text">LÚA NẾP</span>
+          <button id="speakCurrentBtn" onclick="window.speakSampleDirect()" class="mini-tts-btn" title="Nghe phát âm mẫu">🔊 Nghe</button>
+        </div>
+      </div>
+      <div class="popup-progress-track">
+        <div id="popupProgressFill" class="popup-progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- 3. CANVAS STAGE -->
+    <main class="canvas-container" id="stageContainer">
+      <!-- Floating Text Container -->
+      <div id="floatingTextContainer" class="floating-text-container"></div>
+
+      <!-- Retro 2D Canvas -->
+      <canvas id="gameCanvas" width="640" height="320"></canvas>
+
+      <!-- Realtime countdown progress bar -->
+      <div class="countdown-bar-wrapper">
+        <div id="countdownBarFill" class="countdown-bar-fill"></div>
+      </div>
+    </main>
+
+    <!-- 4. THANH TRẠNG THÁI MICRO DƯỚI ĐÁY -->
+    <section class="bottom-control-deck">
+      <div class="mic-control-bar">
+        <div class="mic-live-row">
+          <div id="micLed" class="mic-led"></div>
+          <span style="color:#d1d5db; font-size:11px;">🎙️ LIVE:</span>
+          <span id="liveTranscriptText" class="transcript-text">Đang lắng nghe giọng nói...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. MODALS -->
+    <!-- Region Selector Modal -->
+    <div id="regionModal" class="modal-overlay active">
+      <div class="modal-card">
+        <h2 class="modal-title">🦖 NÓI CHUẨN THÌ QUA – NÓI SAI VẤP RÀO 🦖</h2>
+        <p class="modal-subtitle">Trò chơi Endless Runner điều khiển 100% bằng giọng nói tiếng Việt!</p>
+
+        <!-- Lucian UX/UI Prompt #351 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#351 -->
+        <div class="u351">
+          <div class="u351-hd">
+            <b>Chọn vùng đất</b>
+            <span class="u351-g" aria-hidden="true">Tốc độ cuộn<svg viewBox="0 0 44 26"><path d="M4 24a18 18 0 0 1 36 0"/><line x1="22" y1="24" x2="22" y2="9"/></svg></span>
+          </div>
+          <div class="u351-sc" tabindex="0" aria-label="Danh sách vùng đất">
+            <ul class="u351-ls" id="regionCardList">
+              <li class="u351-it selected" data-region="bac" role="button" tabindex="0" onclick="window.selectRegionDirect('bac')">
+                <i style="--a:#FF8787;--b:#FFD43B" aria-hidden="true">🏮</i>
+                <div><b>Miền Bắc</b><span>Luyện L/N &amp; Câu lẹo lưỡi chuẩn Tràng An</span></div>
+              </li>
+              <li class="u351-it" data-region="trung" role="button" tabindex="0" onclick="window.selectRegionDirect('trung')">
+                <i style="--a:#74C0FC;--b:#B197FC" aria-hidden="true">⛩️</i>
+                <div><b>Miền Trung</b><span>Phương ngữ Nghệ - Tĩnh &amp; Xứ Huế mộc mạc</span></div>
+              </li>
+              <li class="u351-it" data-region="nam" role="button" tabindex="0" onclick="window.selectRegionDirect('nam')">
+                <i style="--a:#63E6BE;--b:#4DABF7" aria-hidden="true">🥥</i>
+                <div><b>Miền Nam</b><span>Hào sảng sông nước Nam Bộ &amp; Tiếng lóng miệt vườn</span></div>
+              </li>
+              <li class="u351-it" data-region="taybac" role="button" tabindex="0" onclick="window.selectRegionDirect('taybac')">
+                <i style="--a:#FFA94D;--b:#F783AC" aria-hidden="true">🏔️</i>
+                <div><b>Tây Bắc</b><span>Rẻo cao Hoàng Liên Sơn, Thắng cố &amp; Khăn piêu</span></div>
+              </li>
+              <li class="u351-it" data-region="taynguyen" role="button" tabindex="0" onclick="window.selectRegionDirect('taynguyen')">
+                <i style="--a:#A9E34B;--b:#38D9A9" aria-hidden="true">🪓</i>
+                <div><b>Tây Nguyên</b><span>Sử thi đại ngàn Đăm Săn &amp; Mái Nhà Rông</span></div>
+              </li>
+              <li class="u351-it" data-region="random" role="button" tabindex="0" onclick="window.selectRegionDirect('random')">
+                <i style="--a:#FF8787;--b:#FFD43B" aria-hidden="true">🎲</i>
+                <div><b>Ngẫu Nhiên 5 Miền</b><span>Tự động đổi câu ngẫu nhiên từ cả 5 vùng miền</span></div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <script>
+        // Lucian UX/UI Prompt #351 · MIT License (c) 2026 Seokwoooo · https://lucianlabs.dev/uxui-prompt/#351
+        (function () {
+          var root = document.querySelector('.u351');
+          if (!root) return;
+          var sc = root.querySelector('.u351-sc');
+          var ls = root.querySelector('.u351-ls');
+          var needle = root.querySelector('.u351-g line');
+          var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+          var rm = motionQuery.matches;
+
+          // Keyboard support for the real region cards (Enter / Space)
+          root.querySelectorAll('.u351-it').forEach(function (item) {
+            item.addEventListener('keydown', function (e) {
+              if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                e.preventDefault();
+                item.click();
+              }
+            });
+          });
+
+          var lastY = 0, lastT = 0, vel = 0, skew = 0, sv = 0, raf = 0;
+
+          // Theo dõi thay đổi prefers-reduced-motion khi trang đang mở
+          function onMotionPreferenceChange(e) {
+            rm = e.matches;
+            if (rm) {
+              vel = 0; skew = 0; sv = 0;
+              ls.style.transform = '';
+              needle.style.transform = 'rotate(-88deg)';
+            }
+          }
+          if (motionQuery.addEventListener) {
+            motionQuery.addEventListener('change', onMotionPreferenceChange);
+          } else if (motionQuery.addListener) {
+            motionQuery.addListener(onMotionPreferenceChange);
+          }
+
+          sc.addEventListener('scroll', function () {
+            var now = performance.now(), dt = Math.max(8, now - (lastT || now - 16));
+            var v = (sc.scrollTop - lastY) / dt;
+            lastY = sc.scrollTop; lastT = now;
+            vel = vel * 0.6 + v * 0.4;
+            if (!raf) raf = requestAnimationFrame(tick);
+          }, { passive: true });
+
+          function tick() {
+            raf = 0;
+            if (!root.isConnected) return;
+            if (performance.now() - lastT > 60) vel *= 0.6;
+            var target = rm ? 0 : Math.max(-10, Math.min(10, -vel * 3.2));
+            sv += (target - skew) * 0.2; sv *= 0.72; skew += sv;
+            ls.style.transform = 'skewY(' + skew.toFixed(2) + 'deg) scaleY(' + (1 + Math.min(0.06, Math.abs(skew) * 0.006)).toFixed(3) + ')';
+            needle.style.transform = 'rotate(' + Math.max(-80, Math.min(80, -88 + Math.min(1, Math.abs(vel) / 3) * 176)).toFixed(1) + 'deg)';
+            if (Math.abs(skew) > 0.02 || Math.abs(sv) > 0.02 || Math.abs(vel) > 0.01) raf = requestAnimationFrame(tick);
+            else { ls.style.transform = ''; needle.style.transform = 'rotate(-88deg)'; }
+          }
+
+          needle.style.transform = 'rotate(-88deg)';
+        })();
+        </script>
+
+        <button id="startPlayBtn" type="button" onclick="window.gameStartDirect()" class="start-play-btn">
+          ▶️ BẮT ĐẦU CHẠY NGAY
+        </button>
+      </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameOverModal" class="modal-overlay">
+      <div class="modal-card">
+        <h2 class="modal-title" style="color:var(--alert-red);">💥 GAME OVER 💥</h2>
+        <p id="gameOverCauseText" class="modal-subtitle">Khủng long đã va phải chướng ngại vật vì chưa kịp nói câu chính xác!</p>
+
+        <div class="gameover-box">
+          <div class="gameover-row">
+            <div>ĐIỂM: <span id="finalScoreVal" style="color:var(--neon-green);">00000</span></div>
+            <div>KỶ LỤC: <span id="finalHiScoreVal" style="color:#38bdf8;">00000</span></div>
+          </div>
+          <div class="gameover-stats-line">
+            Số lượt vượt qua: <strong id="finalWordsCleared" style="color:#ffffff;">0</strong> | Chuỗi Combo: <strong id="finalComboVal" style="color:#fde68a;">0x</strong>
+          </div>
+        </div>
+
+        <div class="rank-badge">
+          <div style="font-size:12px; letter-spacing:0.5px; opacity:0.95; font-weight:700;">DANH HIỆU KHU VỰC:</div>
+          <div id="rankTitle" style="font-size:16px; margin: 5px 0; font-weight:800; color:#ffffff;">TẬP SỰ NÓI NGỌNG</div>
+          <div id="rankDesc" style="font-size:13px; color:#fde68a; font-style:italic;">Cần uốn lưỡi thêm để vượt qua thử thách!</div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:6px;">
+          <button id="replayBtn" type="button" onclick="window.gameReplayDirect()" class="gameover-btn replay">
+            🔄 CHƠI LẠI
+          </button>
+          <button id="changeRegionFromEndBtn" type="button" onclick="window.openRegionModalDirect()" class="gameover-btn change-region">
+            🗺️ ĐỔI VÙNG
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       GAME ENGINE & SPEECH CONTROLLER JAVASCRIPT
+       ========================================================================== -->
+  <script>
+  /**
+   * Helper tương tác song song cả hai sự kiện 'click' và 'touchend'
+   * Tối ưu phản hồi tức thì cho Mobile Preview / Webview & Thiết bị cảm ứng
+   * Tích hợp bộ lọc cuộn (scroll detection > 10px) và debounce chống ghost-click
+   */
+  window.bindDualTouchClick = function(element, handler) {
+    if (!element) return;
+    let lastTime = 0;
+    const DEBOUNCE_MS = 280;
+    let startX = 0, startY = 0, isTouchMoved = false;
+
+    element.addEventListener('touchstart', function(e) {
+      if (e.touches && e.touches.length > 0) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isTouchMoved = false;
+      }
+    }, { passive: true });
+
+    element.addEventListener('touchmove', function(e) {
+      if (e.touches && e.touches.length > 0) {
+        const dx = Math.abs(e.touches[0].clientX - startX);
+        const dy = Math.abs(e.touches[0].clientY - startY);
+        if (dx > 10 || dy > 10) isTouchMoved = true;
+      }
+    }, { passive: true });
+
+    element.addEventListener('touchend', function(e) {
+      if (isTouchMoved) return; // Người dùng đang vuốt cuộn màn hình
+      const now = Date.now();
+      if (now - lastTime < DEBOUNCE_MS) {
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
+      lastTime = now;
+      if (e.cancelable) e.preventDefault();
+      try {
+        handler(e);
+      } catch (err) {
+        console.error('Lỗi thực thi touchend:', err);
+      }
+    }, { passive: false });
+
+    element.addEventListener('click', function(e) {
+      const now = Date.now();
+      if (now - lastTime < DEBOUNCE_MS) return;
+      lastTime = now;
+      try {
+        handler(e);
+      } catch (err) {
+        console.error('Lỗi thực thi click:', err);
+      }
+    }, { passive: true });
+  };
+
+  // Immediate Global Bridge Handlers (Works on 100% of devices)
+  window.selectRegionDirect = function(key) {
+    try {
+      if (window._internalSelectRegion) {
+        window._internalSelectRegion(key);
+      } else {
+        document.querySelectorAll('#regionCardList [data-region]').forEach(c => {
+          if (c.getAttribute('data-region') === key) c.classList.add('selected');
+          else c.classList.remove('selected');
+        });
+      }
+    } catch (e) {}
+  };
+
+  window.gameStartDirect = function() {
+    try {
+      const rm = document.getElementById('regionModal');
+      if (rm) { rm.classList.remove('active'); rm.style.display = 'none'; }
+      if (window._internalStartGame) window._internalStartGame();
+    } catch (e) { console.error(e); }
+  };
+
+  window.gameReplayDirect = function() {
+    try {
+      const gom = document.getElementById('gameOverModal');
+      if (gom) { gom.classList.remove('active'); gom.style.display = 'none'; }
+      window.gameStartDirect();
+    } catch (e) {}
+  };
+
+  window.openRegionModalDirect = function() {
+    try {
+      const gom = document.getElementById('gameOverModal');
+      if (gom) { gom.classList.remove('active'); gom.style.display = 'none'; }
+      const rm = document.getElementById('regionModal');
+      if (rm) { rm.style.display = 'flex'; rm.classList.add('active'); }
+    } catch (e) {}
+  };
+
+  window.toggleSoundDirect = function() {
+    if (window._internalToggleSound) window._internalToggleSound();
+  };
+
+  window.speakSampleDirect = function(type) {
+    if (window._internalSpeakSample) window._internalSpeakSample(type);
+  };
+
+  (function() {
+    'use strict';
+
+    /* ==========================================================================
+       A. DATA STORE: CÁC CẶP CÂU NÓI DÀI HOÀN CHỈNH CHO 5 VÙNG MIỀN
+       ========================================================================== */
+    const REGIONS_DATA = {
+      bac: {
+        id: 'bac',
+        name: 'Miền Bắc',
+        icon: '🏮',
+        subtitle: 'Luyện L/N & Câu lẹo lưỡi',
+        words: [
+          { jump: "Lúa nếp", duck: "Núa nếp" },
+          { jump: "Lưu loát", duck: "Nưu noát" },
+          { jump: "Nóng nực", duck: "Lóng nực" },
+          { jump: "Luyện nói", duck: "Nuyện lói" },
+          { jump: "Năng nổ", duck: "Lăng nổ" },
+          { jump: "Nỗ lực", duck: "Lỗ lực" },
+          { jump: "Lạc lối", duck: "Nạc nối" },
+          { jump: "Lợn béo", duck: "Nợn béo" },
+          { jump: "Nồi đồng", duck: "Lồi đồng" },
+          { jump: "Lên núi", duck: "Nên núi" },
+          { jump: "Lấy nứa", duck: "Nấy nứa" },
+          { jump: "Làm nhà", duck: "Nàm nhà" }
+        ],
+        pairs: [
+          {
+            jump: "Nói năng lưu loát lấy lúa nếp",
+            duck: "Lói năng nưu noát lấy núa nếp"
+          },
+          {
+            jump: "Nồi đồng nấu ốc nồi đất nấu ếch",
+            duck: "Lồi đồng lấu ốc lồi đất lấu ếch"
+          },
+          {
+            jump: "Luyện nói tiếng Việt lưu loát mỗi ngày",
+            duck: "Nuyện lói tiếng Việt nưu noát mỗi ngày"
+          },
+          {
+            jump: "Lúa nếp là lúa nếp làng",
+            duck: "Núa nếp nà núa nếp nàng"
+          },
+          {
+            jump: "Lúc nào lên núi lấy nứa về làm nhà",
+            duck: "Núc nào nên núi nấy nứa về nàm nhà"
+          },
+          {
+            jump: "Nuôi nấng đàn lợn béo núc ních",
+            duck: "Luôi lấng đàn nợn béo núc ních"
+          }
+        ],
+        ranks: [
+          { minScore: 0, title: 'Tập Sự Nói Ngọng', desc: 'Lúa nếp vẫn lẫn với nếp lúa, cần uốn lưỡi thêm mười vạn dặm!' },
+          { minScore: 300, title: 'Thánh Uốn Lưỡi L/N', desc: 'Phụ âm L và N đã phân minh rõ rệt, dân làng khen nức nở!' },
+          { minScore: 700, title: 'Bậc Thầy Tràng An', desc: 'Giọng chuẩn thanh lịch Hà Thành, không câu nào làm khó được bạn!' },
+          { minScore: 1200, title: 'Đệ Nhất Hùng Biện Đất Bắc', desc: 'Đỉnh cao ngôn từ, thần đồng lúa nếp làng hoa vang danh!' }
+        ]
+      },
+
+      trung: {
+        id: 'trung',
+        name: 'Miền Trung',
+        icon: '⛩️',
+        subtitle: 'Phương ngữ Nghệ - Tĩnh / Huế',
+        words: [
+          { jump: "Trốc cúi", duck: "Răng rứa" },
+          { jump: "Đi bổ", duck: "Mô tê" },
+          { jump: "Cấy cày", duck: "Nác chè" },
+          { jump: "Ngái ngôi", duck: "Mụ o" },
+          { jump: "Quê choa", duck: "Thanh Chương" },
+          { jump: "Chộ chộ", duck: "Chi rứa" },
+          { jump: "Thương mạ", duck: "Bơng đọi" },
+          { jump: "Sông Lam", duck: "Trù mè" },
+          { jump: "Nác chát", duck: "Nhút cà" },
+          { jump: "Tau nghe", duck: "Mi nói" }
+        ],
+        pairs: [
+          {
+            jump: "Trốc cúi đi bổ cấy cày",
+            duck: "Răng rứa mô tê nác chè chát"
+          },
+          {
+            jump: "Đi mô rồi cũng nhớ về quê choa",
+            duck: "Mụ o ngồi nhút Thanh Chương"
+          },
+          {
+            jump: "Trời mưa lâm thâm ướt dầm trốc cúi",
+            duck: "Chộ cấy chi rứa nói tau nghe coi"
+          },
+          {
+            jump: "Thương mạ tần tảo nắng mưa ngái ngôi",
+            duck: "Bơng đọi nác chè xanh mời khách quý"
+          },
+          {
+            jump: "Con đò xuôi dòng sông Lam êm ả",
+            duck: "Trù mè thơm phức cay nồng vị quê"
+          }
+        ],
+        ranks: [
+          { minScore: 0, title: 'Mới Vô Xứ Nghệ', desc: 'Nghe răng rứa mô tê như vịt nghe sấm, đi bộ mà ngỡ đi bổ!' },
+          { minScore: 300, title: 'Dân Mô Tê Chuẩn Xịn', desc: 'Đã biết chộ, biết nác, biết nhút Thanh Chương giòn ngọt!' },
+          { minScore: 700, title: 'Thần Đồng Tiếng Trung', desc: 'Nói tiếng Nghệ - Tĩnh trôi chảy hơn đò xuôi dòng sông Lam!' },
+          { minScore: 1200, title: 'Cố Đô Đại Hiệp', desc: 'Bậc thầy phương ngữ xứ Huế - Nghệ Tĩnh rành rọt vô song!' }
+        ]
+      },
+
+      nam: {
+        id: 'nam',
+        name: 'Miền Nam',
+        icon: '🥥',
+        subtitle: 'Sông nước Nam Bộ',
+        words: [
+          { jump: "Bạc xỉu", duck: "Lạc xon" },
+          { jump: "Dìa quê", duck: "Cà na" },
+          { jump: "Cá lóc", duck: "Ghe xuồng" },
+          { jump: "Hổm rày", duck: "Lạng quạng" },
+          { jump: "Bông súng", duck: "Thối tiền" },
+          { jump: "Bánh tét", duck: "Bà ba" },
+          { jump: "Cá linh", duck: "Hết sảy" },
+          { jump: "Miệt vườn", duck: "Mút chỉ" },
+          { jump: "Sông nước", duck: "Ba lá" },
+          { jump: "Điên điển", duck: "Sầu đâu" }
+        ],
+        pairs: [
+          {
+            jump: "Hổm rày dìa quê uống bạc xỉu",
+            duck: "Lạc xon chè đậu ghe xuồng lạng quạng"
+          },
+          {
+            jump: "Bông súng cá lóc nấu canh chua",
+            duck: "Đi cà na thối tiền liền tay"
+          },
+          {
+            jump: "Chèo xuồng ba lá bắt cá linh bông điên điển",
+            duck: "Tính tình xề xòa hết sảy con bà bảy"
+          },
+          {
+            jump: "Dìa miệt vườn ăn bánh tét chè bà ba",
+            duck: "Chạy nhong nhong mút chỉ cà tha"
+          },
+          {
+            jump: "Gỏi sầu đâu cá sặc đồng thơm lừng",
+            duck: "Bứt rứt trong lòng vì nhớ câu hò sông nước"
+          }
+        ],
+        ranks: [
+          { minScore: 0, title: 'Dân Mới Lên Tỉnh', desc: 'Uống bạc xỉu mà chưa biết dìa quê, đi lạc xon tá lả!' },
+          { minScore: 300, title: 'Hai Lúa Miệt Vườn', desc: 'Chèo xuồng ba lá bắt cá lóc điệu nghệ, phát âm ngọt xớt!' },
+          { minScore: 700, title: 'Chúa Tể Nam Bộ', desc: 'Hổm rày phát âm hết sảy, đúng chất hào sảng sông nước Cửu Long!' },
+          { minScore: 1200, title: 'Bá Chủ Miệt Vườn', desc: 'Mút chỉ cà tha ai bằng bạn, đệ nhất anh hai Nam Bộ!' }
+        ]
+      },
+
+      taybac: {
+        id: 'taybac',
+        name: 'Tây Bắc',
+        icon: '🏔️',
+        subtitle: 'Rẻo cao Hoàng Liên Sơn',
+        words: [
+          { jump: "Thắng cố", duck: "Khăn piêu" },
+          { jump: "Cơm lam", duck: "Mắc khén" },
+          { jump: "Nậm pịa", duck: "Hạt dổi" },
+          { jump: "Pa pỉnh tộp", duck: "Mèn mén" },
+          { jump: "Rượu ngô", duck: "Gác bếp" },
+          { jump: "Fansipan", duck: "Bản làng" },
+          { jump: "Xòe hoa", duck: "Ô Quy Hồ" },
+          { jump: "Chợ phiên", duck: "Bếp lửa" },
+          { jump: "Thịt trâu", duck: "Bột ngô" }
+        ],
+        pairs: [
+          {
+            jump: "Thắng cố nậm pịa cơm lam pa pỉnh tộp",
+            duck: "Ruộng bậc thang xòe hoa khăn piêu mắc khén"
+          },
+          {
+            jump: "Uống rượu ngô ngắm mây vờn đỉnh Fansipan",
+            duck: "Gia vị hạt dổi mắc khén thịt trâu gác bếp"
+          },
+          {
+            jump: "Váy hoa rực rỡ chợ phiên mù sương",
+            duck: "Đèo Ô Quy Hồ gió lộng lưng trời"
+          },
+          {
+            jump: "Điệu múa xòe hoa bên bếp lửa bập bùng",
+            duck: "Mèn mén bột ngô dẻo thơm bát canh gà"
+          }
+        ],
+        ranks: [
+          { minScore: 0, title: 'Khách Lạc Chân Đèo', desc: 'Mới ngửi mùi mắc khén đã hắt xì, leo dốc thở không ra hơi!' },
+          { minScore: 300, title: 'Bản Lĩnh Rẻo Cao', desc: 'Đã ăn thắng cố, uống rượu ngô, vượt dốc Pha Đin như gió thoảng!' },
+          { minScore: 700, title: 'Sơn Thần Hoàng Liên Sơn', desc: 'Hùng bá Tây Bắc, hiểu thấu điệu khèn và vẻ đẹp khăn piêu!' },
+          { minScore: 1200, title: 'Chúa Tể Đại Ngàn Tây Bắc', desc: 'Đỉnh Fansipan dưới chân, danh tiếng rền vang khắp bản làng!' }
+        ]
+      },
+
+      taynguyen: {
+        id: 'taynguyen',
+        name: 'Tây Nguyên',
+        icon: '🪓',
+        subtitle: 'Sử thi Đăm Săn & Nhà Rông',
+        words: [
+          { jump: "Nhà rông", duck: "Đàn Tơ rưng" },
+          { jump: "Rượu cần", duck: "Muối kiến vàng" },
+          { jump: "Cồng chiêng", duck: "Đăm Săn" },
+          { jump: "Bản Đôn", duck: "Nhà dài" },
+          { jump: "Cưỡi voi", duck: "Dray Nur" },
+          { jump: "Già làng", duck: "Đất bazan" },
+          { jump: "Rừng khộp", duck: "Cà phê vối" },
+          { jump: "Lễ hội", duck: "Bếp lửa hồng" },
+          { jump: "Bò một nắng", duck: "Đâm trâu" }
+        ],
+        pairs: [
+          {
+            jump: "Đàn tơ rưng ngân vang bên mái nhà rông",
+            duck: "Uống rượu cần nghe kể sử thi Đăm Săn"
+          },
+          {
+            jump: "Tiếng cồng chiêng rộn rã lễ hội đâm trâu",
+            duck: "Chấm muối kiến vàng thưởng thức bò một nắng"
+          },
+          {
+            jump: "Dũng sĩ Bản Đôn cưỡi voi qua thác Dray Nur",
+            duck: "Già làng kể chuyện sử thi bên bếp lửa hồng"
+          },
+          {
+            jump: "Rừng khộp trút lá vàng đất đỏ bazan",
+            duck: "Hương cà phê vối nồng nàn cao nguyên"
+          }
+        ],
+        ranks: [
+          { minScore: 0, title: 'Tập Đánh Chiêng Vấp', desc: 'Gõ cồng lộn nhịp, mới nhấp ngụm rượu cần đã say bí tỉ!' },
+          { minScore: 300, title: 'Dũng Sĩ Rặng Thông', desc: 'Cưỡi voi Bản Đôn băng thác Dray Nur hiên ngang kiêu hãnh!' },
+          { minScore: 700, title: 'Già Làng Huyền Thoại', desc: 'Tiếng nói vang vọng mái nhà rông, sử thi đại ngàn khắc tên bạn!' },
+          { minScore: 1200, title: 'Lãnh Chúa Rừng Khộp Bazan', desc: 'Bảo vật sống của đại ngàn, tiếng chiêng âm vang ngút ngàn mây gió!' }
+        ]
+      },
+
+      random: {
+        id: 'random',
+        name: 'Random 5 Miền',
+        icon: '🎲',
+        subtitle: 'Thử thách hỗn hợp đỉnh cao cả nước',
+        ranks: [
+          { minScore: 0, title: 'Tập Sự Đa Vùng', desc: 'Mới nghe giọng 3 miền đã hoa mắt chóng mặt!' },
+          { minScore: 300, title: 'Bậc Thầy Ngôn Ngữ', desc: 'Vừa lúa nếp miền Bắc đã nhảy qua cá lóc miền Nam cực điêu luyện!' },
+          { minScore: 700, title: 'Đại Sứ Tiếng Việt', desc: 'Giọng đọc chuẩn chỉnh cả 5 miền, linh hoạt chuyển giọng thần sầu!' },
+          { minScore: 1200, title: 'Huyền Thoại Bách Khoa 5 Miền', desc: 'Đỉnh cao ngôn từ toàn quốc, không phương ngữ nào làm khó được bạn!' }
+        ]
+      }
+    };
+
+    /* ==========================================================================
+       B. PIXEL ART MATRICES (CHROME DINO STAND, RUN, JUMP & DUCK)
+       ========================================================================== */
+    // Standing & Running Body (22 cols x 19 rows)
+    const DINO_BODY = [
+      "..........XXXXXXXX....", // 0
+      ".........XXXXXXXXXX...", // 1
+      ".........XXWXXXXXXX...", // 2 (eye at col 11)
+      ".........XXXXXXXXXX...", // 3
+      ".........XXXXXXXXXX...", // 4
+      ".........XXXXXXXX.....", // 5
+      ".........XXXXXX.......", // 6 (jaw mouth cutout)
+      "X.......XXXXXXXX......", // 7
+      "XX.....XXXXXXXXXX.....", // 8
+      "XXX...XXXXXXXXXXX.....", // 9
+      "XXXX.XXXXXXXXXXXX.....", // 10
+      "XXXXXXXXXXXXXXXXXX.XX.", // 11
+      ".XXXXXXXXXXXXXXXX..XX.", // 12
+      "..XXXXXXXXXXXXXXXX....", // 13
+      "...XXXXXXXXXXXXXX.....", // 14
+      "....XXXXXXXXXXXX......", // 15
+      ".....XXXXXXXXXXX......", // 16
+      "......XXXXXXXXXX......", // 17
+      ".......XXXXXXXX.......", // 18
+    ];
+
+    const DINO_LEGS_RUN1 = [
+      "........XX...XX.......", // 19
+      "........XX...XX.......", // 20
+      "........XX...X........", // 21
+      "........XX............", // 22
+      "........XXX..........."  // 23
+    ];
+
+    const DINO_LEGS_RUN2 = [
+      "........XX...XX.......", // 19
+      "........XX...XX.......", // 20
+      ".........X...XX.......", // 21
+      ".............XX.......", // 22
+      "............XXX......."  // 23
+    ];
+
+    const DINO_LEGS_JUMP = [
+      "........XXXXXXX.......", // 19
+      "........XX...XX.......", // 20
+      "........X.....X.......", // 21
+      "......................", // 22
+      "......................"  // 23
+    ];
+
+    // Chrome Dino DUCK Sprite: Flattened body (30 cols x 14 rows, at scale 2: 60px x 28px)
+    const DINO_DUCK_BODY = [
+      "..................XXXXXX......", // 0
+      ".................XXXXXXXX.....", // 1
+      ".................XXWXXXXX.....", // 2 (eye at col 19)
+      ".................XXXXXXXX.....", // 3
+      ".................XXXXXXXX.....", // 4
+      ".................XXXXXXXX.....", // 5
+      "X...............XXXXXXXXX.....", // 6
+      "XX.............XXXXXXXX.......", // 7
+      "XXXXXXXXXXXXXXXXXXXXXXX...XX..", // 8
+      ".XXXXXXXXXXXXXXXXXXXXXX...XX..", // 9
+      "..XXXXXXXXXXXXXXXXXXXXX.......", // 10
+      "...XXXXXXXXXXXXXXXXXXX........", // 11
+    ];
+
+    const DINO_DUCK_LEGS1 = [
+      ".....XX...XX..................", // 12
+      ".....XX...XX.................."  // 13
+    ];
+
+    const DINO_DUCK_LEGS2 = [
+      ".....XX...XX..................", // 12
+      "......X....X.................."  // 13
+    ];
+
+    // Ground Cactus (3-Branch Cactus, 20x30)
+    const CACTUS_MATRIX = [
+      ".........XX.........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX...XX...",
+      "........XXXX..XXXX..",
+      "........XXXX..XXXX..",
+      "........XXXX..XXXX..",
+      "...XX...XXXX..XXXX..",
+      "..XXXX..XXXX..XXXX..",
+      "..XXXX..XXXX..XXXX..",
+      "..XXXX..XXXX..XXXX..",
+      "..XXXX..XXXX..XXXX..",
+      "..XXXX..XXXXXXXXXX..",
+      "..XXXX..XXXXXXXXX...",
+      "..XXXX..XXXX........",
+      "..XXXXXXXXXX........",
+      "...XXXXXXXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........",
+      "........XXXX........"
+    ];
+
+    /* ==========================================================================
+       C. AUDIO ENGINE (SYNTHESIZED 8-BIT WEB AUDIO API)
+       ========================================================================== */
+    let audioCtx = null;
+    let isSoundMuted = false;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    // 1. Jump Chirp (Square wave rising sweep)
+    function playJumpSound() {
+      if (isSoundMuted) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(700, now + 0.14);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } catch (e) {}
+    }
+
+    // 2. Duck/Slide Sound (Smooth swoosh glide)
+    function playDuckSound() {
+      if (isSoundMuted) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(380, now);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.18);
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } catch (e) {}
+    }
+
+    // 3. Victory Arpeggio (4-note cheerful chime)
+    function playCorrectSound(combo = 1) {
+      if (isSoundMuted) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        const pitchMult = Math.min(1.5, 1 + (combo - 1) * 0.05);
+        const notes = [523.25, 659.25, 783.99, 1046.50].map(f => f * pitchMult);
+        const step = 0.05;
+
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * step);
+          gain.gain.setValueAtTime(0.25, now + idx * step);
+          gain.gain.exponentialRampToValueAtTime(0.005, now + (idx + 1) * step + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * step);
+          osc.stop(now + (idx + 1) * step + 0.05);
+        });
+      } catch (e) {}
+    }
+
+    // 4. Hit Crash Sound (Sawtooth drop + noise crunch)
+    function playHitSound() {
+      if (isSoundMuted) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(250, now);
+        osc.frequency.exponentialRampToValueAtTime(40, now + 0.35);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.38);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.38);
+
+        // White noise crunch buffer
+        const bufferSize = Math.floor(ctx.sampleRate * 0.15);
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.25, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        noise.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        noise.start(now);
+      } catch (e) {}
+    }
+
+    // 5. Warning Beat Tick (Dồn dập khi vào 5s cuối)
+    let lastTickSecond = -1;
+    function playWarningTick() {
+      if (isSoundMuted) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      try {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(920, now);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.005, now + 0.05);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } catch (e) {}
+    }
+
+    // 6. Native TTS (Speech Synthesis) phát âm câu lệnh đang hoạt động
+    function speakCurrentSentence() {
+      if (!currentObstacle || !('speechSynthesis' in window)) return;
+      const textToSpeak = currentObstacle.targetSentence;
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(textToSpeak);
+        utter.lang = 'vi-VN';
+        utter.rate = 0.95;
+        window.speechSynthesis.speak(utter);
+      } catch (e) {}
+    }
+
+    /* ==========================================================================
+       D. TEXT NORMALIZATION & 70% KEYWORD MATCHER
+       ========================================================================== */
+    function normalizeVietnamese(text) {
+      if (!text) return '';
+      return text
+        .toLowerCase()
+        .trim()
+        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'–—]/g, ' ')
+        .replace(/\s+/g, ' ');
+    }
+
+    function removeTones(str) {
+      if (!str) return '';
+      return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D');
+    }
+
+    // So khớp linh hoạt tối thiểu 70% từ khóa
+    function evaluateSentenceMatch(spokenText, targetSentence) {
+      if (!spokenText || !targetSentence) return 0;
+      const normSpoken = normalizeVietnamese(spokenText);
+      const normTarget = normalizeVietnamese(targetSentence);
+
+      // Direct exact match
+      if (normSpoken.includes(normTarget)) return 1.0;
+
+      const unSpoken = removeTones(normSpoken);
+      const unTarget = removeTones(normTarget);
+      if (unSpoken.includes(unTarget)) return 0.95;
+
+      const targetWords = normTarget.split(' ').filter(w => w.length > 0);
+      if (targetWords.length === 0) return 0;
+
+      const spokenWords = new Set(normSpoken.split(' ').filter(w => w.length > 0));
+      const unSpokenWords = new Set(unSpoken.split(' ').filter(w => w.length > 0));
+
+      let matchCount = 0;
+      targetWords.forEach(w => {
+        const unW = removeTones(w);
+        if (spokenWords.has(w) || unSpokenWords.has(unW) || normSpoken.includes(w)) {
+          matchCount++;
+        }
+      });
+
+      return matchCount / targetWords.length;
+    }
+
+    /* ==========================================================================
+       E. GAME ENGINE STATE & VARIABLES
+       ========================================================================== */
+    const VIRTUAL_WIDTH = 640;
+    const VIRTUAL_HEIGHT = 320;
+    const GROUND_Y = 254;
+
+    // Thời gian phản xạ theo loại ngẫu nhiên của từng lượt:
+    // - TỪ ĐƠN: 2.5s - 3.0s
+    // - CÂU DÀI: 4.5s - 5.5s (nới rộng theo độ dài câu)
+    function calculateSentenceTime(sentence, itemKind) {
+      if (!sentence) return 3.0;
+
+      const wordCount = sentence.trim().split(/\s+/).filter(w => w.length > 0).length;
+      const kind = itemKind || (wordCount <= 2 ? 'WORD' : 'PHRASE');
+
+      if (kind === 'WORD') {
+        return Math.round((2.5 + Math.random() * 0.5) * 10) / 10;
+      }
+
+      const computed = 3.9 + wordCount * 0.2;
+      const clamped = Math.min(5.5, Math.max(4.5, computed));
+      return Math.round(clamped * 10) / 10;
+    }
+
+    // DOM Elements
+    const gameWrapper = document.getElementById('gameWrapper');
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const rhythmBar = document.getElementById('rhythmBar');
+    const rhythmText = document.getElementById('rhythmText');
+    const countdownTimerText = document.getElementById('countdownTimerText');
+    const countdownBarFill = document.getElementById('countdownBarFill');
+    const floatingTextContainer = document.getElementById('floatingTextContainer');
+    const topCommandPopup = document.getElementById('topCommandPopup');
+    const popupActionBadge = document.getElementById('popupActionBadge');
+    const popupRegionTag = document.getElementById('popupRegionTag');
+    const popupTimerBadge = document.getElementById('popupTimerBadge');
+    const popupSentenceText = document.getElementById('popupSentenceText');
+    const popupProgressFill = document.getElementById('popupProgressFill');
+    const speakCurrentBtn = document.getElementById('speakCurrentBtn');
+    const popupModeIndicatorEl = document.getElementById('popupModeIndicator');
+
+    const scoreValEl = document.getElementById('scoreVal');
+    const hiScoreValEl = document.getElementById('hiScoreVal');
+    const regionBadgeBtn = document.getElementById('regionBadgeBtn');
+    const regionIconEl = document.getElementById('regionIcon');
+    const regionNameTextEl = document.getElementById('regionNameText');
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+
+    const micLedEl = document.getElementById('micLed');
+    const liveTranscriptTextEl = document.getElementById('liveTranscriptText');
+
+    const regionModal = document.getElementById('regionModal');
+    const gameOverModal = document.getElementById('gameOverModal');
+    const gameOverCauseText = document.getElementById('gameOverCauseText');
+    const finalScoreValEl = document.getElementById('finalScoreVal');
+    const finalHiScoreValEl = document.getElementById('finalHiScoreVal');
+    const finalWordsClearedEl = document.getElementById('finalWordsCleared');
+    const finalComboValEl = document.getElementById('finalComboVal');
+    const rankTitleEl = document.getElementById('rankTitle');
+    const rankDescEl = document.getElementById('rankDesc');
+
+    // State Variables
+    let selectedRegionKey = 'bac';
+    let gameState = 'MENU'; // 'MENU', 'PLAYING', 'GAMEOVER'
+    let score = 0;
+    let hiScore = 0;
+    let wordsClearedCount = 0;
+    let comboCount = 0;
+    let maxCombo = 0;
+    let currentApproachTime = 2.0; // Tối đa 2.0 giây mỗi câu
+    let cameraX = 0;
+    let screenShake = 0;
+
+    let mixWordDeck = [];
+    let mixPhraseDeck = [];
+    let currentPair = null;
+
+    // Ground Pebbles & Cracks
+    const groundPebbles = [];
+    for (let i = 0; i < 30; i++) {
+      groundPebbles.push({
+        x: Math.random() * VIRTUAL_WIDTH * 1.5,
+        y: GROUND_Y + 6 + Math.random() * 40,
+        w: 2 + Math.floor(Math.random() * 3) * 2,
+        h: 2,
+        color: Math.random() > 0.5 ? '#888' : '#aaa'
+      });
+    }
+
+    // Clouds
+    const clouds = [
+      { x: 100, y: 35, speed: 0.15, w: 54, h: 16 },
+      { x: 340, y: 65, speed: 0.22, w: 46, h: 14 },
+      { x: 520, y: 25, speed: 0.18, w: 60, h: 18 }
+    ];
+
+    try {
+      const savedHi = localStorage.getItem('non_la_dino_hi_score');
+      if (savedHi) hiScore = parseInt(savedHi, 10) || 0;
+      hiScoreValEl.textContent = String(hiScore).padStart(5, '0');
+    } catch (e) {}
+
+    /* ==========================================================================
+       F. DINO ENTITY (STAND, RUN, JUMP & DUCK)
+       ========================================================================== */
+    const DINO_X = 64;
+    const DINO_SCALE = 2;
+    const DINO_STAND_W = 22 * DINO_SCALE; // 44px
+    const DINO_STAND_H = 24 * DINO_SCALE; // 48px
+    const DINO_DUCK_W = 30 * DINO_SCALE;  // 60px
+    const DINO_DUCK_H = 14 * DINO_SCALE;  // 28px
+    const DINO_STAND_Y = GROUND_Y - DINO_STAND_H + 2; // 208px
+    const DINO_DUCK_Y = GROUND_Y - DINO_DUCK_H + 2;   // 228px
+
+    const dino = {
+      x: DINO_X,
+      y: DINO_STAND_Y,
+      w: DINO_STAND_W,
+      h: DINO_STAND_H,
+      vy: 0,
+      jumpForce: -13.8,
+      gravity: 0.62,
+      isGrounded: true,
+      isDucking: false,
+      duckTimer: 0,
+      legFrame: 0,
+      stepTimer: 0,
+      isDead: false,
+
+      jump() {
+        if (!this.isGrounded && this.vy > 0) return;
+        this.isDucking = false;
+        this.w = DINO_STAND_W;
+        this.h = DINO_STAND_H;
+        this.vy = this.jumpForce;
+        this.isGrounded = false;
+        playJumpSound();
+        spawnDust(this.x + 8, GROUND_Y);
+      },
+
+      duck(duration = 1.0) {
+        if (!this.isGrounded) return; // Cannot duck mid-air
+        this.isDucking = true;
+        this.duckTimer = duration;
+        this.w = DINO_DUCK_W;
+        this.h = DINO_DUCK_H;
+        this.y = DINO_DUCK_Y;
+        playDuckSound();
+        spawnDust(this.x + 14, GROUND_Y);
+      },
+
+      update(dt) {
+        // Handle Ducking duration
+        if (this.isDucking) {
+          this.duckTimer -= dt;
+          if (this.duckTimer <= 0) {
+            this.isDucking = false;
+            this.w = DINO_STAND_W;
+            this.h = DINO_STAND_H;
+            this.y = DINO_STAND_Y;
+          }
+        }
+
+        // Handle Jump Physics
+        if (!this.isGrounded) {
+          this.y += this.vy;
+          this.vy += this.gravity;
+          if (this.y >= DINO_STAND_Y) {
+            this.y = DINO_STAND_Y;
+            this.vy = 0;
+            this.isGrounded = true;
+            spawnDust(this.x + 12, GROUND_Y);
+          }
+        } else if (gameState === 'PLAYING') {
+          this.stepTimer += dt;
+          if (this.stepTimer > 0.08) {
+            this.legFrame = (this.legFrame + 1) % 2;
+            this.stepTimer = 0;
+          }
+        }
+      },
+
+      draw(ctx) {
+        const px = DINO_SCALE;
+        const startX = Math.round(this.x);
+        const startY = Math.round(this.y);
+        const dinoColor = '#535353';
+
+        // Helper to draw the authentic Vietnamese Nón Lá (Conical Palm Hat) on Dino
+        const drawNonLa = (hatBaseX, hatBaseY) => {
+          const hatPixels = [
+            [14, -5, '#ffe082'],
+            [13, -4, '#ffe082'], [14, -4, '#ffd54f'], [15, -4, '#d4a343'],
+            [12, -3, '#ffe082'], [13, -3, '#ffe082'], [14, -3, '#ffd54f'], [15, -3, '#ffd54f'], [16, -3, '#d4a343'],
+            [11, -2, '#ffe082'], [12, -2, '#ffe082'], [13, -2, '#ffe082'], [14, -2, '#ffd54f'], [15, -2, '#ffd54f'], [16, -2, '#ffd54f'], [17, -2, '#d4a343'],
+            [9, -1, '#d4a343'], [10, -1, '#ffe082'], [11, -1, '#ffe082'], [12, -1, '#ffe082'], [13, -1, '#ffe082'], [14, -1, '#ffd54f'], [15, -1, '#ffd54f'], [16, -1, '#ffd54f'], [17, -1, '#ffd54f'], [18, -1, '#d4a343'], [19, -1, '#d4a343']
+          ];
+          hatPixels.forEach(([hc, hr, hColor]) => {
+            ctx.fillStyle = hColor;
+            ctx.fillRect(hatBaseX + hc * px, hatBaseY + hr * px, px, px);
+          });
+          // Red chinstrap ribbon
+          ctx.fillStyle = '#e53935';
+          ctx.fillRect(hatBaseX + 13 * px, hatBaseY, px * 2, px * 2);
+        };
+
+        if (this.isDucking) {
+          // 1. Draw Ducking Body
+          for (let r = 0; r < DINO_DUCK_BODY.length; r++) {
+            const rowStr = DINO_DUCK_BODY[r];
+            for (let c = 0; c < rowStr.length; c++) {
+              const char = rowStr[c];
+              if (char === 'X') {
+                ctx.fillStyle = dinoColor;
+                ctx.fillRect(startX + c * px, startY + r * px, px, px);
+              } else if (char === 'W') {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(startX + c * px, startY + r * px, px, px);
+              }
+            }
+          }
+          // 2. Draw Ducking Legs
+          const duckLegs = this.legFrame === 0 ? DINO_DUCK_LEGS1 : DINO_DUCK_LEGS2;
+          for (let r = 0; r < duckLegs.length; r++) {
+            const rowStr = duckLegs[r];
+            for (let c = 0; c < rowStr.length; c++) {
+              if (rowStr[c] === 'X') {
+                ctx.fillStyle = dinoColor;
+                ctx.fillRect(startX + c * px, startY + (12 + r) * px, px, px);
+              }
+            }
+          }
+          // Draw Nón Lá shifted over lowered head
+          drawNonLa(startX + 8 * px, startY);
+        } else {
+          // Standing / Jumping Dino
+          for (let r = 0; r < DINO_BODY.length; r++) {
+            const rowStr = DINO_BODY[r];
+            for (let c = 0; c < rowStr.length; c++) {
+              const char = rowStr[c];
+              if (char === 'X') {
+                ctx.fillStyle = dinoColor;
+                ctx.fillRect(startX + c * px, startY + r * px, px, px);
+              } else if (char === 'W') {
+                if (this.isDead) {
+                  ctx.fillStyle = '#ffffff';
+                  ctx.fillRect(startX + c * px, startY + r * px, px, px);
+                  ctx.fillStyle = '#ea4335';
+                  ctx.fillRect(startX + c * px, startY + r * px, px, px);
+                } else {
+                  ctx.fillStyle = '#ffffff';
+                  ctx.fillRect(startX + c * px, startY + r * px, px, px);
+                }
+              }
+            }
+          }
+
+          if (this.isDead) {
+            ctx.fillStyle = '#ea4335';
+            const eyeX = startX + 11 * px;
+            const eyeY = startY + 2 * px;
+            ctx.fillRect(eyeX - px, eyeY - px, px * 3, px * 3);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(eyeX, eyeY, px, px);
+          }
+
+          let legsData = this.isGrounded
+            ? (this.legFrame === 0 ? DINO_LEGS_RUN1 : DINO_LEGS_RUN2)
+            : DINO_LEGS_JUMP;
+
+          for (let r = 0; r < legsData.length; r++) {
+            const rowStr = legsData[r];
+            for (let c = 0; c < rowStr.length; c++) {
+              if (rowStr[c] === 'X') {
+                ctx.fillStyle = dinoColor;
+                ctx.fillRect(startX + c * px, startY + (19 + r) * px, px, px);
+              }
+            }
+          }
+          // Draw Nón Lá on top of standing head
+          drawNonLa(startX, startY);
+        }
+      }
+    };
+
+    /* ==========================================================================
+       G. OBSTACLE ENTITY (LOẠI 1: XƯƠNG RỒNG DƯỚI ĐẤT vs LOẠI 2: DÂY ĐIỆN TRÊN CAO)
+       ========================================================================== */
+    const SPAWN_DISTANCE = 520; // 584px
+    let currentObstacle = null;
+
+    function createObstacle(pairObj) {
+      // 50% chance Ground Cactus (NHẢY), 50% chance Overhead Wires (CÚI)
+      const type = Math.random() > 0.5 ? 'GROUND' : 'OVERHEAD';
+      const targetSentence = type === 'GROUND' ? pairObj.jump : pairObj.duck;
+      const targetDuration = calculateSentenceTime(targetSentence, pairObj.kind);
+
+      return {
+        type: type, // 'GROUND' (cần Nhảy) hoặc 'OVERHEAD' (cần Cúi)
+        x: DINO_X + SPAWN_DISTANCE,
+        y: type === 'GROUND' ? GROUND_Y - 60 + 2 : GROUND_Y - 88,
+        w: type === 'GROUND' ? 40 : 54,
+        h: type === 'GROUND' ? 60 : 44,
+        pair: pairObj,
+        targetSentence: targetSentence,
+        totalTime: targetDuration,
+        timeLeft: targetDuration,
+        cleared: false,
+        clearingSpeed: 640
+      };
+    }
+
+    function drawObstacle(ctx, obs) {
+      const px = 2;
+      const startX = Math.round(obs.x);
+      const startY = Math.round(obs.y);
+
+      if (obs.type === 'GROUND') {
+        // Draw Ground Cactus
+        for (let r = 0; r < CACTUS_MATRIX.length; r++) {
+          const rowStr = CACTUS_MATRIX[r];
+          for (let c = 0; c < rowStr.length; c++) {
+            if (rowStr[c] === 'X') {
+              ctx.fillStyle = '#535353';
+              ctx.fillRect(startX + c * px, startY + r * px, px, px);
+            }
+          }
+        }
+      } else {
+        // Draw Overhead Wires & Hanging Electric Danger Sign (Trường ngang đầu)
+        // High horizontal cable line
+        ctx.fillStyle = '#222';
+        ctx.fillRect(startX - 20, startY + 6, obs.w + 40, 3);
+        ctx.fillRect(startX - 20, startY + 12, obs.w + 40, 2);
+
+        // Hanging insulator posts
+        ctx.fillStyle = '#ff9800';
+        ctx.fillRect(startX + 8, startY + 4, 6, 12);
+        ctx.fillRect(startX + obs.w - 14, startY + 4, 6, 12);
+
+        // Yellow-Black Hazard Striped Danger Bar (Hạ ngang đầu khủng long)
+        ctx.fillStyle = '#ffd600';
+        ctx.fillRect(startX + 4, startY + 16, obs.w - 8, 16);
+        ctx.fillStyle = '#000000';
+        // Diagonal warning stripes
+        for (let s = startX + 6; s < startX + obs.w - 8; s += 8) {
+          ctx.beginPath();
+          ctx.moveTo(s, startY + 32);
+          ctx.lineTo(s + 4, startY + 16);
+          ctx.lineTo(s + 7, startY + 16);
+          ctx.lineTo(s + 3, startY + 32);
+          ctx.fill();
+        }
+
+        // Dangling sparking wires
+        ctx.strokeStyle = '#e53935';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(startX + 18, startY + 32);
+        ctx.lineTo(startX + 16, startY + 40);
+        ctx.lineTo(startX + 22, startY + 44);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(startX + 34, startY + 32);
+        ctx.lineTo(startX + 36, startY + 42);
+        ctx.stroke();
+      }
+    }
+
+    /* ==========================================================================
+       H. DUST & FLOATING PARTICLES
+       ========================================================================== */
+    const dustParticles = [];
+
+    function spawnDust(x, y) {
+      for (let i = 0; i < 4; i++) {
+        dustParticles.push({
+          x: x,
+          y: y - 2 + Math.random() * 4,
+          vx: -(1 + Math.random() * 2),
+          vy: -(0.5 + Math.random() * 1.5),
+          size: 2 + Math.floor(Math.random() * 2) * 2,
+          life: 0.35,
+          maxLife: 0.35
+        });
+      }
+    }
+
+    function updateAndDrawDust(ctx, dt) {
+      for (let i = dustParticles.length - 1; i >= 0; i--) {
+        const p = dustParticles[i];
+        p.life -= dt;
+        if (p.life <= 0) {
+          dustParticles.splice(i, 1);
+          continue;
+        }
+        p.x += p.vx;
+        p.y += p.vy;
+        const alpha = p.life / p.maxLife;
+        ctx.fillStyle = `rgba(120, 120, 120, ${alpha})`;
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
+      }
+    }
+
+    function spawnFloatingScore(text, x, y, color = '#00e676') {
+      const el = document.createElement('div');
+      el.className = 'float-score';
+      el.textContent = text;
+      el.style.color = color;
+
+      const leftRatio = (x / VIRTUAL_WIDTH) * 100;
+      const topRatio = (y / VIRTUAL_HEIGHT) * 100;
+      el.style.left = `${leftRatio}%`;
+      el.style.top = `${topRatio}%`;
+
+      floatingTextContainer.appendChild(el);
+      setTimeout(() => {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 850);
+    }
+
+    /* ==========================================================================
+       I. PARALLAX REGIONAL BACKGROUNDS
+       ========================================================================== */
+    function drawParallaxBackground(ctx, regionId, camX) {
+      let rk = regionId;
+      if (rk === 'random') {
+        rk = (currentPair && currentPair.originRegion) ? currentPair.originRegion : 'bac';
+      }
+      // Drifting clouds
+      ctx.fillStyle = 'rgba(180, 180, 180, 0.45)';
+      clouds.forEach(c => {
+        const cx = (c.x - camX * c.speed) % (VIRTUAL_WIDTH + 80);
+        const actualX = cx < -80 ? cx + VIRTUAL_WIDTH + 80 : cx;
+        ctx.fillRect(actualX, c.y, c.w, c.h);
+        ctx.fillRect(actualX + 8, c.y - 6, c.w - 18, 6);
+        ctx.fillRect(actualX + 14, c.y + c.h, c.w - 24, 4);
+      });
+
+      // City silhouette / Monuments
+      const pSpeed = 0.16;
+      const period = 520;
+      const baseShift = -((camX * pSpeed) % period);
+
+      [-1, 0, 1].forEach(slot => {
+        const ox = baseShift + slot * period;
+        // Background Landmark
+        ctx.fillStyle = 'rgba(130, 140, 150, 0.4)';
+        ctx.fillRect(ox + 80, GROUND_Y - 50, 40, 50);
+        ctx.fillRect(ox + 92, GROUND_Y - 70, 16, 20);
+        ctx.fillRect(ox + 260, GROUND_Y - 40, 60, 40);
+        ctx.fillRect(ox + 280, GROUND_Y - 60, 20, 20);
+      });
+
+      // Solid Ground
+      ctx.fillStyle = '#535353';
+      ctx.fillRect(0, GROUND_Y, VIRTUAL_WIDTH, 2);
+
+      // Ground Pebbles
+      groundPebbles.forEach(p => {
+        const renderX = (p.x - camX) % (VIRTUAL_WIDTH * 1.5);
+        const actualX = renderX < 0 ? renderX + (VIRTUAL_WIDTH * 1.5) : renderX;
+        if (actualX <= VIRTUAL_WIDTH) {
+          ctx.fillStyle = p.color;
+          ctx.fillRect(Math.round(actualX), p.y, p.w, p.h);
+        }
+      });
+    }
+
+    /* ==========================================================================
+       J. GAME LOOP & COLLISION ENGINE
+       ========================================================================== */
+    let lastTimestamp = 0;
+
+    function gameLoop(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const dt = Math.min((timestamp - lastTimestamp) / 1000, 0.1);
+      lastTimestamp = timestamp;
+
+      update(dt);
+      render();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    function update(dt) {
+      if (screenShake > 0) {
+        screenShake = Math.max(0, screenShake - dt * 25);
+      }
+
+      if (gameState === 'PLAYING') {
+        const groundSpeed = 160;
+        cameraX += groundSpeed * dt;
+
+        dino.update(dt);
+
+        if (currentObstacle) {
+          if (!currentObstacle.cleared) {
+            currentObstacle.timeLeft = Math.max(0, currentObstacle.timeLeft - dt);
+
+            // Audio warning tick trong 1.0 giây cuối cùng
+            const currentTick = Math.floor(currentObstacle.timeLeft * 2);
+            if (currentObstacle.timeLeft <= 1.0 && currentTick !== lastTickSecond) {
+              lastTickSecond = currentTick;
+              playWarningTick();
+            }
+
+            // Move obstacle toward Dino proportionally
+            const progress = currentObstacle.timeLeft / currentObstacle.totalTime;
+            const targetArrivalX = DINO_X + 26;
+            currentObstacle.x = targetArrivalX + (SPAWN_DISTANCE - 26) * progress;
+
+            // Update Countdown UI & Rhythm Banner
+            updateCountdownAndRhythmUI(currentObstacle.timeLeft, currentObstacle.totalTime);
+
+            // Chạm vật cản khi chưa được xử lý bằng giọng nói => va chạm
+            if (currentObstacle.timeLeft <= 0 || currentObstacle.x <= targetArrivalX) {
+              const cause = currentObstacle.type === 'GROUND'
+                ? (dino.isDucking ? "ĐỌC NHẦM CÂU CÚI khi gặp xương rồng dưới đất!" : "Chưa kịp đọc câu NHẢY!")
+                : (!dino.isGrounded ? "ĐỌC NHẦM CÂU NHẢY đụng trúng dây điện trên đầu!" : "Chưa kịp đọc câu CÚI!");
+              handleCollision(cause);
+            }
+          } else {
+            // Rush cleared obstacle past Dino
+            currentObstacle.x -= currentObstacle.clearingSpeed * dt;
+            if (currentObstacle.x < -60) {
+              advanceToNextObstacle();
+            }
+          }
+        }
+      } else if (gameState === 'GAMEOVER') {
+        dino.update(dt);
+      }
+    }
+
+    function render() {
+      ctx.save();
+      if (screenShake > 0) {
+        const shakeX = (Math.random() - 0.5) * screenShake * 8;
+        const shakeY = (Math.random() - 0.5) * screenShake * 8;
+        ctx.translate(shakeX, shakeY);
+      }
+
+      ctx.clearRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
+      drawParallaxBackground(ctx, selectedRegionKey, cameraX);
+      updateAndDrawDust(ctx, 0.016);
+
+      if (currentObstacle) {
+        drawObstacle(ctx, currentObstacle);
+      }
+
+      dino.draw(ctx);
+      ctx.restore();
+    }
+
+    /* ==========================================================================
+       K. ACTION HANDLING & DECK MANAGEMENT
+       ========================================================================== */
+    function buildDeckItems(regionKey, kind) {
+      const regionKeys = regionKey === 'random'
+        ? ['bac', 'trung', 'nam', 'taybac', 'taynguyen']
+        : [regionKey];
+
+      const items = [];
+      regionKeys.forEach(rk => {
+        const reg = REGIONS_DATA[rk] || (regionKey === 'random' ? null : REGIONS_DATA.bac);
+        if (!reg) return;
+        const source = (kind === 'WORD' ? reg.words : reg.pairs) || [];
+        source.forEach(p => {
+          items.push({
+            ...p,
+            kind,
+            originRegion: reg.id,
+            originName: reg.name,
+            originIcon: reg.icon
+          });
+        });
+      });
+
+      return items.sort(() => Math.random() - 0.5);
+    }
+
+    function initPairDeck(regionKey) {
+      // Luôn random hỗn hợp: tách riêng 2 bộ bài để mỗi lượt tung đồng xu Từ đơn / Câu dài
+      mixWordDeck = buildDeckItems(regionKey, 'WORD');
+      mixPhraseDeck = buildDeckItems(regionKey, 'PHRASE');
+    }
+
+    function getNextPair() {
+      const useWord = Math.random() < 0.5;
+      let deck = useWord ? mixWordDeck : mixPhraseDeck;
+
+      if (deck.length === 0) {
+        deck = buildDeckItems(selectedRegionKey, useWord ? 'WORD' : 'PHRASE');
+        if (useWord) mixWordDeck = deck;
+        else mixPhraseDeck = deck;
+      }
+
+      if (deck.length === 0) {
+        const otherDeck = useWord ? mixPhraseDeck : mixWordDeck;
+        if (otherDeck && otherDeck.length) return otherDeck.pop();
+      }
+
+      return deck.pop();
+    }
+
+    function spawnNextObstacle() {
+      currentPair = getNextPair();
+      currentObstacle = createObstacle(currentPair);
+      lastTickSecond = -1;
+
+      updatePopupUI(currentObstacle);
+      updateCountdownAndRhythmUI(currentObstacle.timeLeft, currentObstacle.totalTime);
+    }
+
+    // Cập nhật popup bảng chữ duy nhất ở phía trên màn hình
+    function updatePopupUI(obs) {
+      if (!obs || !topCommandPopup) return;
+
+      const isWord = obs.pair && obs.pair.kind
+        ? obs.pair.kind === 'WORD'
+        : true;
+      let baseClass = 'top-command-popup ' + (obs.type === 'GROUND' ? 'jump-mode' : 'duck-mode');
+      if (isWord) baseClass += ' word-mode-active';
+      topCommandPopup.className = baseClass;
+
+      if (obs.type === 'GROUND') {
+        popupActionBadge.textContent = isWord ? '↑ NHẢY (XƯƠNG RỒNG)' : '↑ NHẢY VỌT QUA XƯƠNG RỒNG';
+      } else {
+        popupActionBadge.textContent = isWord ? '↓ CÚI (DÂY ĐIỆN)' : '↓ CÚI RẠP TRÁNH DÂY ĐIỆN';
+      }
+
+      if (popupModeIndicatorEl) {
+        popupModeIndicatorEl.textContent = isWord ? '[TỪ ĐƠN]' : '[CÂU DÀI]';
+        popupModeIndicatorEl.style.color = isWord ? '#ffd600' : '#7dd3fc';
+      }
+
+      popupRegionTag.textContent = `${obs.pair.originIcon || '🏮'} ${obs.pair.originName || 'Miền Bắc'}`;
+      popupSentenceText.textContent = obs.targetSentence;
+      popupTimerBadge.textContent = `${obs.timeLeft.toFixed(1)}s`;
+      popupTimerBadge.classList.remove('urgent');
+      popupProgressFill.classList.remove('urgent');
+      popupProgressFill.style.width = '100%';
+    }
+
+    function updateCountdownAndRhythmUI(timeLeft, totalTime) {
+      const ratio = Math.max(0, Math.min(1, timeLeft / totalTime));
+
+      if (popupProgressFill) popupProgressFill.style.width = `${(ratio * 100).toFixed(1)}%`;
+      if (popupTimerBadge) popupTimerBadge.textContent = `${timeLeft.toFixed(1)}s`;
+      if (countdownBarFill) countdownBarFill.style.width = `${(ratio * 100).toFixed(1)}%`;
+
+      if (timeLeft <= 1.5) {
+        if (popupProgressFill) popupProgressFill.classList.add('urgent');
+        if (popupTimerBadge) popupTimerBadge.classList.add('urgent');
+        if (countdownBarFill) countdownBarFill.style.backgroundColor = 'var(--alert-red)';
+      } else {
+        if (popupProgressFill) popupProgressFill.classList.remove('urgent');
+        if (popupTimerBadge) popupTimerBadge.classList.remove('urgent');
+        if (countdownBarFill) countdownBarFill.style.backgroundColor = 'var(--neon-green)';
+      }
+    }
+
+    // Success action handler (Jump or Duck) — chỉ chấp nhận nguồn giọng nói
+    function onActionSuccess(action, source) {
+      if (source !== 'voice') return;
+      if (gameState !== 'PLAYING' || !currentObstacle || currentObstacle.cleared) return;
+
+      currentObstacle.cleared = true;
+      wordsClearedCount++;
+      comboCount++;
+      if (comboCount > maxCombo) maxCombo = comboCount;
+
+      // Trigger Physical Movement
+      if (action === 'NHẢY') {
+        dino.jump();
+      } else {
+        dino.duck(1.1); // Duck rạp mình 1.1s
+      }
+
+      playCorrectSound(comboCount);
+      if (navigator.vibrate) try { navigator.vibrate(80); } catch (e) {}
+
+      // Calculate Score: 100 Base + Speed Bonus (nhanh trong 2s) + Combo Bonus
+      const speedBonus = Math.floor(currentObstacle.timeLeft * 60);
+      const comboBonus = (comboCount - 1) * 35;
+      const points = 100 + speedBonus + comboBonus;
+      score += points;
+      updateScoreUI();
+
+      let bonusStr = `+${points}`;
+      if (comboCount >= 2) bonusStr = `🔥 ${comboCount}x COMBO! +${points}`;
+      spawnFloatingScore(bonusStr, DINO_X + 24, dino.y - 12, action === 'NHẢY' ? '#ff9800' : '#7c4dff');
+
+      liveTranscriptTextEl.classList.add('match-pop');
+      liveTranscriptTextEl.textContent = `🎯 ĐÚNG CÂU ${action}! (+${points})`;
+      setTimeout(() => liveTranscriptTextEl.classList.remove('match-pop'), 1200);
+
+      // Duy trì nhịp phản xạ tối đa 2.0s (rút ngắn nhẹ tối thiểu 1.4s khi lên level cao)
+      currentApproachTime = Math.max(1.4, currentApproachTime - 0.02);
+    }
+
+    function advanceToNextObstacle() {
+      if (gameState !== 'PLAYING') return;
+      spawnNextObstacle();
+    }
+
+    function handleCollision(causeMsg = "Va chạm vật cản!") {
+      if (gameState !== 'PLAYING') return;
+
+      gameState = 'GAMEOVER';
+      dino.isDead = true;
+      screenShake = 1.0;
+      comboCount = 0;
+
+      playHitSound();
+      if (navigator.vibrate) try { navigator.vibrate([120, 60, 150]); } catch (e) {}
+
+      if (score > hiScore) {
+        hiScore = score;
+        try { localStorage.setItem('non_la_dino_hi_score', hiScore); } catch (e) {}
+        updateScoreUI();
+      }
+
+      gameOverCauseText.textContent = causeMsg;
+      setTimeout(() => showGameOverModal(), 700);
+    }
+
+    function updateScoreUI() {
+      scoreValEl.textContent = String(score).padStart(5, '0');
+      hiScoreValEl.textContent = String(hiScore).padStart(5, '0');
+    }
+
+    /* ==========================================================================
+       L. SPEECH RECOGNITION (WEB SPEECH API - vi-VN)
+       BỌC TOÀN BỘ TRONG KHỐI TRY-CATCH AN TOÀN CHO WEBVIEW / EMULATOR
+       ========================================================================== */
+    let recognition = null;
+    let isMicEnabled = true; // Micro luôn BẬT mặc định
+    let isListening = false;
+    let micSupported = false;
+    let micRestartTimer = null;
+
+    function scheduleMicRestart(delay = 250) {
+      if (micRestartTimer) return;
+      micRestartTimer = setTimeout(() => {
+        micRestartTimer = null;
+        if (gameState === 'PLAYING' && isMicEnabled && recognition && !isListening) {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.warn('Không thể tự kết nối lại Mic:', e);
+          }
+        }
+      }, delay);
+    }
+
+    function initSpeechRecognition() {
+      try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          micSupported = false;
+          if (micLedEl) micLedEl.className = 'mic-led error';
+          if (liveTranscriptTextEl) {
+            liveTranscriptTextEl.textContent = "Thiết bị/trình duyệt chưa hỗ trợ nhận diện giọng nói.";
+          }
+          return false;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.lang = 'vi-VN';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 3;
+
+        recognition.onstart = () => {
+          isListening = true;
+          if (micRestartTimer) {
+            clearTimeout(micRestartTimer);
+            micRestartTimer = null;
+          }
+          if (micLedEl) micLedEl.className = 'mic-led listening';
+          if (liveTranscriptTextEl) liveTranscriptTextEl.textContent = "Mic đang nghe tiếng Việt...";
+        };
+
+        recognition.onresult = (event) => {
+          try {
+            let interim = '';
+            let final = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              const trans = event.results[i][0].transcript;
+              if (event.results[i].isFinal) final += trans;
+              else interim += trans;
+            }
+
+            const spoken = (final || interim).trim();
+            if (spoken) {
+              if (micLedEl) micLedEl.className = 'mic-led hearing';
+              if (liveTranscriptTextEl) liveTranscriptTextEl.textContent = `"${spoken}"`;
+              checkBranchingSpeechMatch(spoken);
+            }
+          } catch (err) {
+            console.warn('Lỗi phân tích giọng nói:', err);
+          }
+        };
+
+        recognition.onerror = (event) => {
+          try {
+            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+              isMicEnabled = false;
+              if (micRestartTimer) {
+                clearTimeout(micRestartTimer);
+                micRestartTimer = null;
+              }
+              if (micLedEl) micLedEl.className = 'mic-led error';
+              if (liveTranscriptTextEl) liveTranscriptTextEl.textContent = "Chưa cấp quyền Micro. Hãy cấp quyền trong trình duyệt rồi chạy lại!";
+              return;
+            }
+
+            // Bỏ qua 'no-speech' và tự kết nối lại Mic khi đang chơi
+            if (gameState === 'PLAYING' && isMicEnabled && event.error !== 'aborted') {
+              if (micLedEl) micLedEl.className = 'mic-led listening';
+              scheduleMicRestart(300);
+            }
+          } catch (err) {}
+        };
+
+        recognition.onend = () => {
+          isListening = false;
+          try {
+            if (gameState === 'PLAYING' && isMicEnabled && recognition) {
+              scheduleMicRestart(180);
+            } else {
+              if (micLedEl) micLedEl.className = 'mic-led';
+            }
+          } catch (err) {}
+        };
+
+        micSupported = true;
+        return true;
+      } catch (err) {
+        console.warn('Web Speech API không thể khởi tạo trong môi trường này:', err);
+        micSupported = false;
+        if (micLedEl) micLedEl.className = 'mic-led error';
+        if (liveTranscriptTextEl) {
+          liveTranscriptTextEl.textContent = "Thiết bị/trình duyệt chưa hỗ trợ nhận diện giọng nói.";
+        }
+        return false;
+      }
+    }
+
+    function startMic() {
+      isMicEnabled = true;
+      if (micRestartTimer) {
+        clearTimeout(micRestartTimer);
+        micRestartTimer = null;
+      }
+      try {
+        if (!recognition) initSpeechRecognition();
+        if (recognition && !isListening) {
+          recognition.start();
+        }
+      } catch (e) {
+        console.warn('Không thể bật Mic:', e);
+      }
+    }
+
+    // So khớp nhận diện giọng nói phân nhánh (Nhảy vs Cúi)
+    function checkBranchingSpeechMatch(spokenText) {
+      if (gameState !== 'PLAYING' || !currentObstacle || currentObstacle.cleared) return;
+
+      const isWord = currentPair && currentPair.kind
+        ? currentPair.kind === 'WORD'
+        : true;
+      const jumpScore = evaluateSentenceMatch(spokenText, currentPair.jump);
+      const duckScore = evaluateSentenceMatch(spokenText, currentPair.duck);
+
+      // Ngưỡng đạt từ khóa: 60% cho Từ đơn, 70% cho Câu dài
+      const THRESHOLD = isWord ? 0.60 : 0.70;
+      const JUMP_MATCH = jumpScore >= THRESHOLD;
+      const DUCK_MATCH = duckScore >= THRESHOLD;
+
+      if (!JUMP_MATCH && !DUCK_MATCH) return;
+
+      if (currentObstacle.type === 'GROUND') {
+        // Gặp xương rồng: Bắt buộc đọc câu NHẢY
+        if (JUMP_MATCH) {
+          onActionSuccess('NHẢY', 'voice');
+        } else if (DUCK_MATCH) {
+          // Đọc nhầm câu CÚI khi gặp xương rồng dưới đất
+          handleCollision("ĐỌC NHẦM CÂU CÚI khi gặp xương rồng dưới đất!");
+        }
+      } else {
+        // Gặp dây điện trên cao: Bắt buộc đọc câu CÚI
+        if (DUCK_MATCH) {
+          onActionSuccess('CÚI', 'voice');
+        } else if (JUMP_MATCH) {
+          // Đọc nhầm câu NHẢY khi gặp dây điện trên đầu
+          handleCollision("ĐỌC NHẦM CÂU NHẢY đụng trúng dây điện trên đầu!");
+        }
+      }
+    }
+
+    /* ==========================================================================
+       M. MODALS, REGION SELECTION & GAME FLOW
+       ========================================================================== */
+    function populateRegionCards() {
+      document.querySelectorAll('#regionCardList [data-region]').forEach(c => {
+        if (c.getAttribute('data-region') === selectedRegionKey) c.classList.add('selected');
+        else c.classList.remove('selected');
+      });
+    }
+
+    function selectRegion(regionKey) {
+      selectedRegionKey = regionKey;
+      const reg = REGIONS_DATA[regionKey];
+      if (reg) {
+        regionIconEl.textContent = reg.icon;
+        regionNameTextEl.textContent = reg.name;
+      }
+      populateRegionCards();
+    }
+
+    function startGame() {
+      try { getAudioContext(); } catch (e) {}
+
+      regionModal.classList.remove('active');
+      regionModal.style.display = 'none';
+      gameOverModal.classList.remove('active');
+      gameOverModal.style.display = 'none';
+
+      selectRegion(selectedRegionKey);
+      initPairDeck(selectedRegionKey);
+
+      score = 0;
+      wordsClearedCount = 0;
+      comboCount = 0;
+      maxCombo = 0;
+      currentApproachTime = 2.0; // Tối đa 2.0 giây
+      cameraX = 0;
+      updateScoreUI();
+
+      dino.y = DINO_STAND_Y;
+      dino.vy = 0;
+      dino.w = DINO_STAND_W;
+      dino.h = DINO_STAND_H;
+      dino.isGrounded = true;
+      dino.isDucking = false;
+      dino.isDead = false;
+
+      gameState = 'PLAYING';
+
+      try { startMic(); } catch (e) {}
+      spawnNextObstacle();
+    }
+
+    function showGameOverModal() {
+      finalScoreValEl.textContent = String(score).padStart(5, '0');
+      finalHiScoreValEl.textContent = String(hiScore).padStart(5, '0');
+      finalWordsClearedEl.textContent = wordsClearedCount;
+      finalComboValEl.textContent = `${maxCombo}x`;
+
+      const reg = REGIONS_DATA[selectedRegionKey] || REGIONS_DATA.bac;
+      let chosenRank = reg.ranks[0];
+      for (const r of reg.ranks) {
+        if (score >= r.minScore) chosenRank = r;
+      }
+
+      rankTitleEl.textContent = chosenRank.title.toUpperCase();
+      rankDescEl.textContent = `"${chosenRank.desc}"`;
+
+      gameOverModal.style.display = 'flex';
+      gameOverModal.classList.add('active');
+    }
+
+    // Wire global internal functions
+    window._internalStartGame = startGame;
+    window._internalSelectRegion = selectRegion;
+    window._internalToggleSound = () => {
+      isSoundMuted = !isSoundMuted;
+      soundToggleBtn.textContent = isSoundMuted ? '🔇' : '🔊';
+    };
+    window._internalSpeakSample = speakCurrentSentence;
+
+    // High DPI Canvas Scaling
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = VIRTUAL_WIDTH * dpr;
+      canvas.height = VIRTUAL_HEIGHT * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
+
+    /**
+     * Gắn bộ lắng nghe sự kiện song song 'click' và 'touchend'
+     * Cho 100% các nút và thẻ tương tác trong game
+     */
+    function setupInteractiveBindings() {
+      const bind = window.bindDualTouchClick || function(el, fn) {
+        el.addEventListener('click', fn);
+        el.addEventListener('touchend', fn);
+      };
+
+      // 1. Thẻ chọn 5 Vùng Miền
+      const cards = document.querySelectorAll('#regionCardList [data-region]');
+      cards.forEach(card => {
+        bind(card, () => {
+          const key = card.getAttribute('data-region');
+          if (key) selectRegion(key);
+        });
+      });
+
+      // 2. Nút Bắt đầu chơi
+      const startBtn = document.getElementById('startPlayBtn');
+      if (startBtn) {
+        bind(startBtn, () => {
+          startGame();
+        });
+      }
+
+      // 3. Nút Chơi lại
+      const replayBtn = document.getElementById('replayBtn');
+      if (replayBtn) {
+        bind(replayBtn, () => {
+          const gom = document.getElementById('gameOverModal');
+          if (gom) { gom.classList.remove('active'); gom.style.display = 'none'; }
+          startGame();
+        });
+      }
+
+      // 4. Nút Đổi Vùng Miền
+      const changeRegionBtn = document.getElementById('changeRegionFromEndBtn');
+      if (changeRegionBtn) {
+        bind(changeRegionBtn, () => {
+          openRegionModal();
+        });
+      }
+
+      const regionBadgeBtn = document.getElementById('regionBadgeBtn');
+      if (regionBadgeBtn) {
+        bind(regionBadgeBtn, () => {
+          openRegionModal();
+        });
+      }
+
+      // 5. Nút Âm Thanh
+      const soundBtn = document.getElementById('soundToggleBtn');
+      if (soundBtn) {
+        bind(soundBtn, () => {
+          isSoundMuted = !isSoundMuted;
+          soundBtn.textContent = isSoundMuted ? '🔇' : '🔊';
+        });
+      }
+
+      // 6. Nút Nghe phát âm mẫu trên Top Command Popup
+      const speakCurrentBtn = document.getElementById('speakCurrentBtn');
+      if (speakCurrentBtn) {
+        bind(speakCurrentBtn, () => {
+          speakCurrentSentence();
+        });
+      }
+    }
+
+    function openRegionModal() {
+      const gom = document.getElementById('gameOverModal');
+      if (gom) { gom.classList.remove('active'); gom.style.display = 'none'; }
+      if (regionModal) {
+        regionModal.style.display = 'flex';
+        regionModal.classList.add('active');
+      }
+    }
+
+    // Initial Setup (Bọc an toàn tuyệt đối)
+    try {
+      resizeCanvas();
+      setupInteractiveBindings();
+      populateRegionCards();
+      selectRegion('bac');
+      initPairDeck(selectedRegionKey);
+    } catch (e) {
+      console.error('Setup error:', e);
+    }
+
+    try {
+      initSpeechRecognition();
+    } catch (e) {
+      console.warn('Speech init ignored:', e);
+    }
+
+    requestAnimationFrame(gameLoop);
+  })();
+  </script>
+</body>
+</html>
