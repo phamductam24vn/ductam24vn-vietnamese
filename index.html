@@ -2424,7 +2424,7 @@
     const BASE_GAME_SPEED_FPS = 2.8;
     const MAX_GAME_SPEED_FPS = 3.8;
     const SPEED_RAMP_PER_SCORE = 0.0003;
-    const MIN_OBSTACLE_GAP = 2.5; // Khoảng đệm tối thiểu giữa 2 rào (giây)
+    const MIN_OBSTACLE_GAP = 2.0; // Khoảng đệm an toàn tối thiểu giữa 2 rào (giây)
 
     let currentObstacle = null;
     let gapTimer = 0;
@@ -2435,6 +2435,15 @@
 
     function getGameSpeedPxPerSec() {
       return getGameSpeedFps() * 60;
+    }
+
+    // Thời gian đọc tối thiểu theo số lượng từ của câu
+    function getRequiredReadTime(sentence) {
+      const wordCount = (sentence || '').trim().split(/\s+/).filter(w => w.length > 0).length;
+      if (wordCount <= 2) return 3.2;
+      if (wordCount <= 4) return 4.5;
+      // Câu 5 từ trở lên: 5.5 - 6.0 giây tùy độ dài
+      return Math.min(6.0, 5.5 + (wordCount - 5) * 0.08);
     }
 
     // Khoảng cách spawn theo độ dài câu: câu dài nới xa hơn để kịp lấy hơi
@@ -2448,20 +2457,31 @@
       const type = Math.random() > 0.5 ? 'GROUND' : 'OVERHEAD';
       const targetSentence = type === 'GROUND' ? pairObj.jump : pairObj.duck;
       const spawnDistance = getSpawnDistance(targetSentence);
-      const speedPxPerSec = getGameSpeedPxPerSec();
-      const targetDuration = spawnDistance / speedPxPerSec;
+      const requiredTime = getRequiredReadTime(targetSentence);
+      const totalFrames = Math.max(1, Math.round(requiredTime * 60));
+      const spawnX = DINO_X + spawnDistance;
+      // Quãng đường thực tế tới điểm chạm (mép trước vật cản gần khủng long)
+      const collisionX = DINO_X + 26;
+      const travelDistance = Math.max(1, spawnX - collisionX);
+      // Khóa tốc độ riêng: đi hết quãng đường đúng requiredTime giây
+      const speedPerFrame = travelDistance / totalFrames;
 
       return {
         type: type, // 'GROUND' (cần Nhảy) hoặc 'OVERHEAD' (cần Cúi)
-        x: DINO_X + spawnDistance,
+        x: spawnX,
+        spawnX: spawnX,
         y: type === 'GROUND' ? GROUND_Y - 60 + 2 : GROUND_Y - 88,
         w: type === 'GROUND' ? 40 : 54,
         h: type === 'GROUND' ? 60 : 44,
         pair: pairObj,
         targetSentence: targetSentence,
         spawnDistance: spawnDistance,
-        totalTime: targetDuration,
-        timeLeft: targetDuration,
+        requiredTime: requiredTime,
+        totalFrames: totalFrames,
+        remainingFrames: totalFrames,
+        speed: speedPerFrame, // px/frame tại 60fps (riêng cho từng vật cản)
+        totalTime: requiredTime,
+        timeLeft: requiredTime,
         cleared: false,
         clearingSpeed: 640
       };
@@ -2523,6 +2543,20 @@
         ctx.lineTo(startX + 36, startY + 42);
         ctx.stroke();
       }
+
+      // ----- Thanh đếm ngược thời gian đọc dưới mỗi vật cản -----
+      const ratio = obs.totalFrames > 0
+        ? Math.max(0, Math.min(1, obs.remainingFrames / obs.totalFrames))
+        : 0;
+      const barW = Math.max(44, obs.w + 12);
+      const barH = 4;
+      const barX = Math.round(startX + (obs.w - barW) / 2);
+      const barY = Math.round(obs.y + obs.h + 8);
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+      ctx.fillRect(barX, barY, barW, barH);
+      ctx.fillStyle = ratio > 0.35 ? '#10b981' : '#ff1744';
+      ctx.fillRect(barX, barY, Math.round(barW * ratio), barH);
     }
 
     /* ==========================================================================
@@ -2842,7 +2876,11 @@
             }
           }
         } else if (!currentObstacle.cleared) {
-          currentObstacle.timeLeft = Math.max(0, currentObstacle.timeLeft - scaledDt);
+          // Quy đổi dt sang số frame (60fps) có tính timeScale
+          const scaledFrames = scaledDt * 60;
+
+          currentObstacle.remainingFrames = Math.max(0, currentObstacle.remainingFrames - scaledFrames);
+          currentObstacle.timeLeft = currentObstacle.remainingFrames / 60;
 
           // Audio warning tick trong 1.0 giây cuối cùng
           const currentTick = Math.floor(currentObstacle.timeLeft * 2);
@@ -2851,15 +2889,15 @@
             playWarningTick();
           }
 
-          // Di chuyển vật cản: gameSpeed * timeScale
-          currentObstacle.x -= speedPxPerSec * scaledDt;
+          // Di chuyển vật cản theo tốc độ riêng obs.speed (px/frame)
+          currentObstacle.x -= currentObstacle.speed * scaledFrames;
 
-          // Update Countdown UI & Rhythm Banner
+          // Update Countdown UI & Rhythm Banner (tỷ lệ remainingFrames / totalFrames)
           updateCountdownAndRhythmUI(currentObstacle.timeLeft, currentObstacle.totalTime);
 
           // Chạm vật cản khi chưa được xử lý bằng giọng nói => va chạm
           const targetArrivalX = DINO_X + 26;
-          if (currentObstacle.timeLeft <= 0 || currentObstacle.x <= targetArrivalX) {
+          if (currentObstacle.remainingFrames <= 0 || currentObstacle.x <= targetArrivalX) {
             const cause = currentObstacle.type === 'GROUND'
               ? (dino.isDucking ? "ĐỌC NHẦM CÂU CÚI khi gặp xương rồng dưới đất!" : "Chưa kịp đọc câu NHẢY!")
               : (!dino.isGrounded ? "ĐỌC NHẦM CÂU NHẢY đụng trúng dây điện trên đầu!" : "Chưa kịp đọc câu CÚI!");
